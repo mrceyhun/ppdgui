@@ -4,7 +4,7 @@ FROM rootproject/root:$ROOT_TAG
 MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
 
 USER root
-# Required Python version with its minor for FastAPI
+# Required Python version(greater than or equal) for FastAPI
 ENV REQ_PY_VERSION=3.10
 
 COPY ./requirements.txt requirements.txt
@@ -18,3 +18,6 @@ RUN apt-get update -y &&  \
     pip install --upgrade pip  &&  \
     pip install --no-cache-dir --upgrade -r requirements.txt && \
     rm -rf /var/lib/apt/lists/*
+
+# source source /usr/local/bin/thisroot.sh
+#CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
