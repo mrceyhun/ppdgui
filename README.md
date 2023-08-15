@@ -1,5 +1,7 @@
 # ppdgui
+
 CMS PPD Physics Run Monitoring
 
+# How to run
 
-Command+Shift+Dot to see hidden files in Mac
+`$ python backend/main.py`

@@ -5,16 +5,23 @@ Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : PyROOT utils
 """
 
-import ROOT
+import functools
+import json
 import logging
 from enum import Enum
 
+import ROOT
 
-class RootClass(str, Enum):
+
+class RootClasses(str, Enum):
+    """ROOT C++ classes"""
     TH1F = "TH1F"
 
 
-def get_obj_json(file_path: str, obj_path: str) -> str | None:
+# ----------------------------------------------------------------------------
+
+@functools.lru_cache(maxsize=128, typed=False)
+def get_obj_json(file_path: str, obj_path: str):
     """Returns the JSON of the plot from ROOT file
 
     Args:
@@ -23,18 +30,28 @@ def get_obj_json(file_path: str, obj_path: str) -> str | None:
 
     Returns: dict
     """
+    root_f = None
     try:
-        logging.warning(f"Incoming request for file:{file_path}, obj:{obj_path}")
+        logging.debug(f"Incoming request for file:{file_path}, obj:{obj_path}")
+
+        # Open file
         root_f = ROOT.TFile.Open(file_path)
+        # Get object
         obj = root_f.Get(obj_path)
+
         if obj.IsZombie():
             logging.error(f"Object is zombie: file:{file_path}, obj:{obj_path}")
             raise Exception("Zombie Object")
 
-        if obj.Class_Name() == RootClass.TH1F:
-            return str(ROOT.TBufferJSON.ConvertToJSON(obj))  # returns JSON string
+        if obj.Class_Name() == RootClasses.TH1F:
+            # Convert to JSON and return it
+            return json.loads(str(ROOT.TBufferJSON.ConvertToJSON(obj)))  # returns JSON string
         else:
-            raise Exception(f"Class is not {RootClass.TH1F}")
+            raise Exception(f"Class is not {RootClasses.TH1F}")
     except Exception as e:
         logging.error(f"Error of file:{file_path}, obj:{obj_path} | Description: " + str(e))
         return None
+    finally:
+        # Close ROOT file
+        if hasattr(root_f, "Close"):
+            root_f.Close()

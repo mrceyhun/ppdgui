@@ -20,4 +20,4 @@ RUN apt-get update -y &&  \
     rm -rf /var/lib/apt/lists/*
 
 # source source /usr/local/bin/thisroot.sh
-#CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
+#CMD ["python", "backend/main.py]
