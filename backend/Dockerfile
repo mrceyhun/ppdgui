@@ -8,6 +8,7 @@ USER root
 ENV REQ_PY_VERSION=3.10
 
 COPY ./requirements.txt requirements.txt
+COPY ./config.yaml config.yaml
 
 # export PYTHONPATH=BASE/ppdgui:$PYTHONPATH
 # Check Python3 version. REQ_VER is REQ_PY_VERSION as int tuple (3,10), SYS_VER is system version tuple (3,10).
@@ -20,4 +21,4 @@ RUN apt-get update -y &&  \
     pip install --no-cache-dir --upgrade -r requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 
-# python backend/main.py --host "0.0.0.0" --port 80 --base_url "/ppdgui/api/v1"
+# python backend/main.py

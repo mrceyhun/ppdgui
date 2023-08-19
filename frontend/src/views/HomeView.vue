@@ -7,8 +7,8 @@ import HistogramList from '../components/HistogramList.vue';
 </script>
 
 <template>
-  <Navbar></Navbar>
-  <HistogramList></HistogramList>
-  <Footer></Footer>
+  <Navbar />
+  <HistogramList />
+  <Footer />
 </template>
 <style scoped></style>

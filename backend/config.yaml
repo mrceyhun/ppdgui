@@ -1,0 +1,11 @@
+host: '0.0.0.0'
+port: 8080
+base_url: '/ppdgui/api/v1'
+api_v1_prefix: '/ppdgui/api/v1'
+environment: 'dev'
+loglevel: 'info'
+allowed_cors_origins:
+  - 'http://localhost:5173'
+  - 'https://localhost:80'
+  - 'http://localhost'
+  - 'http://localhost:8080'

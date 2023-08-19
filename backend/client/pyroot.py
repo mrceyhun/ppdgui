@@ -11,83 +11,75 @@ import logging
 from enum import Enum
 
 import ROOT
+from ROOT import TFile
+
+from backend.api_v1.models import ResponseRootObj, HistogramJson
 
 
 class RootClasses(str, Enum):
     """ROOT C++ classes"""
     TH1F = "TH1F"
+    TDirectoryFile = "TDirectoryFile"
 
+
+# Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 
 # ----------------------------------------------------------------------------
 
 @functools.lru_cache(maxsize=128, typed=False)
-def get_root_obj_as_json(file_path: str, obj_path: str):
-    """Returns the JSON of the plot from ROOT file
+def get_root_dirs_or_hist(tfile: str, tobject: str = None, all_hists: bool = False) -> ResponseRootObj:
+    """Returns directories or histogram JSONs of requested root object according to its type
 
     Args:
-        file_path: ROOT file path
-        obj_path: plot object directory inside ROOT file
+        tfile: Reachable ROOT file path
+        tobject: ROOT object inside the file, full object path
+        all_hists: Return all histograms in the Directory, no subdirectories of course
 
-    Returns: dict
+    Returns: List of directories or JSON dict
+
     """
-    root_f = None
+    RESPONSE = ResponseRootObj()
+
+    if tobject:
+        tobject = tobject.strip("/")
+
     try:
-        logging.debug(f"Incoming request for file:{file_path}, obj:{obj_path}")
+        with TFile(tfile, "read") as tf:
+            if not tobject or tobject.strip() == "":
+                RESPONSE.dirs = [directory.GetName() for directory in tf.GetListOfKeys()]
+            else:
+                obj = tf.Get(tobject)
+                obj_class = obj.ClassName()
 
-        # Open file
-        root_f = ROOT.TFile.Open(file_path)
-        # Get object
-        obj = root_f.Get(obj_path)
+                # Check object is TH1F or Directory
+                if obj_class == RootClasses.TDirectoryFile and not all_hists:
+                    # Only directory provided, so return subdirectories
 
-        if obj.IsZombie():
-            logging.error(f"Object is zombie: file:{file_path}, obj:{obj_path}")
-            raise Exception("Zombie Object")
+                    RESPONSE.dirs = [i.GetName() for i in obj.GetListOfKeys()]
+                elif obj_class == RootClasses.TH1F:
+                    # Histogram object path is provided, so return its JSON
+                    h = HistogramJson(**{
+                        "name": obj.GetName(),
+                        "data": json.loads(str(ROOT.TBufferJSON.ToJSON(obj)))
+                    })
+                    RESPONSE.hist_json.append(h)
+                elif obj_class == RootClasses.TDirectoryFile and all_hists:
+                    # A subdirectory provided and requests all histograms in it
+                    __hists = []
+                    __dirs = [i.GetName() for i in obj.GetListOfKeys()]
+                    for d in __dirs:
+                        __full_path = tobject + "/" + d
+                        __obj = tf.Get(__full_path)
+                        __obj_class = __obj.ClassName()
+                        if __obj_class == RootClasses.TH1F:
+                            RESPONSE.hist_json.append(
+                                HistogramJson(**{
+                                    "name": d,
+                                    "data": json.loads(str(ROOT.TBufferJSON.ToJSON(__obj)))
+                                })
+                            )
 
-        if obj.Class_Name() == RootClasses.TH1F:
-            # Convert to JSON and return it
-            return json.loads(str(ROOT.TBufferJSON.ConvertToJSON(obj)))  # returns JSON string
-        else:
-            raise Exception(f"Class is not {RootClasses.TH1F}")
     except Exception as e:
-        logging.error(f"Error of file:{file_path}, obj:{obj_path} | Description: " + str(e))
-        return None
+        logging.error(f"Object neither TH1F nor Directory. Incoming=> file{tfile}, obj:{tobject} . Error: {str(e)}")
     finally:
-        # Close ROOT file
-        if hasattr(root_f, "Close"):
-            root_f.Close()
-
-def get_json_file(file_path: str):
-    """Returns the directories of plots in JSON format for test.
-
-    Args:
-        file_path:s list of json files that provides all plots in dict of JSON list format
-    
-    Returns: list[dict]
-    """
-    try:
-        with open(file_path) as f:
-            d = f.read()
-            print(d)
-            return json.loads(d)
-    except Exception as e:
-        logging.error(f"Error of file:{file_path} | Description: " + str(e))
-        return None
-
-
-def get_json_files(file_paths: any):
-    """Returns the directories of plots in JSON format for test.
-
-    Args:
-        file_path:s list of json files that provides all plots in dict of JSON list format
-    
-    Returns: list[dict]
-    """
-    try:
-        rootJsons = []
-        for file_path in file_paths:
-            with open(file_path, "r") as f:
-                rootJsons.append(json.loads(f.read()))
-        return rootJsons
-    except Exception as e:
-        logging.error(f"Error of file:{file_paths} | Description: " + str(e))
-        return None
+        return RESPONSE

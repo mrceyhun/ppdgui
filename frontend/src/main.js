@@ -11,7 +11,7 @@ const app = createApp(App);
 const pinia = createPinia();
 
 
-axios.defaults.baseURL = "http://0.0.0.0:8080/api/v1";
+axios.defaults.baseURL = "http://localhost:8080/ppdgui/api";
 app.axios = axios;
 app.$http = axios;
 app.config.globalProperties.axios = axios;

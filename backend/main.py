@@ -4,58 +4,70 @@
 Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : FastAPI main.py
 """
+import logging
+import os
+
 import click
+import uvicorn
+import yaml
 from fastapi import FastAPI, __version__ as fastapi_version
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+from pydantic import BaseModel
 
 from backend.api_v1.routes import router
 
 
-origins = [
-    "http://localhost:5173",
-    "https://localhost:80",
-    "http://localhost",
-    "http://localhost:8080",
-]
+class Config(BaseModel):
+    """FastApi config schema"""
+    host: str
+    port: int
+    base_url: str
+    api_v1_prefix: str
+    loglevel: str
+    environment: str
+    allowed_cors_origins: list[str]
 
-@click.command()
-@click.option("--host", "-h", type=str, default="0.0.0.0", required=False)
-@click.option("--port", "-p", type=int, default=80, required=False)
-@click.option("--base_url", "-u", type=str, default="/ppdgui/api", required=False)
-@click.option("--reload", "-r", is_flag=True, show_default=True, default=False, help="Reload on code change")
-def main(host, port, base_url, reload):
-    click.echo('''Fast API''')
-    # Production: https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/
-    app = FastAPI(title="FastAPI")
-    app.add_middleware(
-    CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
-    app.include_router(router=router,
-                       prefix="/api/v1",
-                       tags=["v1"])
+def read_config_yaml(file_path: str) -> Config:
+    with open(file_path, 'r') as stream:
+        config = yaml.safe_load(stream)
 
-    @app.get("/")
-    async def health():
-        return "ok"
+    return Config(**config)
 
-    @app.get("/version")
-    async def version():
-        return fastapi_version
 
-    print(base_url)
-    uvicorn.run(
-        app,
-        port=port,
-        host=host,
-        reload=reload,
-    )
+# Get config as object
+CONFIG = read_config_yaml(
+    os.getenv(
+        key="FAST_API_CONF",
+        default=os.path.join(os.path.dirname(__file__), "config.yaml"),
+    ))
+logging.info(CONFIG.model_dump())
+
+# Production: https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/
+app = FastAPI(title="FastAPI")
+app.add_middleware(CORSMiddleware,
+                   allow_origins=CONFIG.allowed_cors_origins,
+                   allow_credentials=True,
+                   allow_methods=["*"],
+                   allow_headers=["*"], )
+
+# Add router
+app.include_router(router=router, prefix=CONFIG.api_v1_prefix, tags=["v1"])
+
+
+@app.get("/")
+async def health():
+    return "ok"
+
+
+@app.get("/version")
+async def version():
+    return fastapi_version
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run("main:app",
+                host=CONFIG.host,
+                port=CONFIG.port,
+                log_level=CONFIG.loglevel,
+                reload=True if CONFIG.environment == 'dev' else False)
