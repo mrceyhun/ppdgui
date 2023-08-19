@@ -1,14 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./index.html",
-    "./src/views/HomeView.vue",
-    "./src/components/Navbar.vue",
-    "./src/components/HistogramList.vue",
-    "./src/components/Histogram.vue",
+    './public/**/*.html',
+    './src/**/*.{js,jsx,ts,tsx,vue}',
   ],
   theme: {
     extend: {},
   },
   plugins: [],
-};
+}

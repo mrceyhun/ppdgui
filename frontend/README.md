@@ -1,5 +1,4 @@
 # PPDGUI
-
 In Progress
 
 ## Project Setup
@@ -9,8 +8,10 @@ rm -rf node_modules
 npm cache clean --force
 npm i
 npm ci
+npm run dev
+http://localhost:5173/
 ```
 
-## Problems and solutions
 
-`npm install gl` is failed and it has py2.7 reuirement. So check if you have `which python2.7`.
+## Refs:
+https://blog.logrocket.com/complex-vue-3-state-management-pinia/

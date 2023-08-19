@@ -1,26 +1,25 @@
-import { defineStore } from "pinia";
 import axios from "axios";
-import { ref } from "vue";
+import { reactive } from 'vue';
+
+import { parse as jsrootParse } from 'jsroot';
+export const store = reactive({
+  confDir: '',
+  hists: [],
+})
 
 
-export const useRootHistogramStore = defineStore("rootHists", {
-  state: () => ({
-    rootHists: ref([]),
-    loading: false,
-    // TODO change names
-    selectedBrand: "All",
-    selectedGender: "All",
-    selectedPrice: "All",
-    selectedType: "All",
-  }),
-
-  actions: {
-    async getHistograms() {
-      const URL = "/data.json";
-      this.loading = true;
-      const response = await axios.get(URL);
-      this.rootHists = await response.data;
-      this.loading = false;
-    },
-  },
-});
+// export const store = reactive({
+//   confDir: 'xxx',
+//   data() {
+//     return {
+//       confDir: 
+//     }
+//   },
+//   methods: {
+//     getDirs() {
+//       axios
+//         .post("/get-json-file", { params: { q: this.confDir.mainPath } })
+//         .then((response) => console.log(response))
+//     }
+//   }
+// })

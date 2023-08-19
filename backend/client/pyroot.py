@@ -21,7 +21,7 @@ class RootClasses(str, Enum):
 # ----------------------------------------------------------------------------
 
 @functools.lru_cache(maxsize=128, typed=False)
-def get_obj_json(file_path: str, obj_path: str):
+def get_root_obj_as_json(file_path: str, obj_path: str):
     """Returns the JSON of the plot from ROOT file
 
     Args:
@@ -55,3 +55,39 @@ def get_obj_json(file_path: str, obj_path: str):
         # Close ROOT file
         if hasattr(root_f, "Close"):
             root_f.Close()
+
+def get_json_file(file_path: str):
+    """Returns the directories of plots in JSON format for test.
+
+    Args:
+        file_path:s list of json files that provides all plots in dict of JSON list format
+    
+    Returns: list[dict]
+    """
+    try:
+        with open(file_path) as f:
+            d = f.read()
+            print(d)
+            return json.loads(d)
+    except Exception as e:
+        logging.error(f"Error of file:{file_path} | Description: " + str(e))
+        return None
+
+
+def get_json_files(file_paths: any):
+    """Returns the directories of plots in JSON format for test.
+
+    Args:
+        file_path:s list of json files that provides all plots in dict of JSON list format
+    
+    Returns: list[dict]
+    """
+    try:
+        rootJsons = []
+        for file_path in file_paths:
+            with open(file_path, "r") as f:
+                rootJsons.append(json.loads(f.read()))
+        return rootJsons
+    except Exception as e:
+        logging.error(f"Error of file:{file_paths} | Description: " + str(e))
+        return None
