@@ -26,7 +26,7 @@ class RootClasses(str, Enum):
 
 # ----------------------------------------------------------------------------
 
-@functools.lru_cache(maxsize=128, typed=False)
+@functools.lru_cache(maxsize=1000, typed=False)  # Cache responses, params are hashabel so it works
 def get_root_dirs_or_hist(tfile: str, tobject: str = None, all_hists: bool = False) -> ResponseRootObj:
     """Returns directories or histogram JSONs of requested root object according to its type
 
