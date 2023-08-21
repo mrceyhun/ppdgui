@@ -1,15 +1,14 @@
 # build stage
 FROM node:20 as build-stage
-RUN apt-get update -y
+LABEL maintainer="ceyhunuzngl@gmail.com"
+LABEL org.label-schema.url="https://github.com/mrceyhun/ppdgui/tree/main/frontend"
 
-# jsroot dependencies
-#   "node-gyp" requires additional packages
-#   "gl" requires `which python` command which is not exist in node image, so symbolic link solves it
-#   "npm i gl" takes longer, no solution for it yet
-
-# RUN apt-get install -y software-properties-common make gcc g++  build-essential libxi-dev libglu-dev libglew-dev pkg-config git
-RUN apt-get install -y make gcc g++  build-essential libxi-dev libglu-dev libglew-dev pkg-config git
-RUN ln -s /usr/bin/python3.11 /usr/bin/python
+# jsroot dependencies:
+#   headless-gl requires `which python` command which is not exist in node image, so symbolic link solves it
+#   headless-gl dependencies: https://github.com/stackgl/headless-gl#system-dependencies
+RUN apt-get update -y && \
+    apt-get install -y make gcc g++  build-essential git libxi-dev libglu1-mesa-dev libglew-dev pkg-config mesa-utils xvfb libgl1-mesa-dri libglapi-mesa libosmesa6 && \
+    ln -s /usr/bin/python3.11 /usr/bin/python
 
 WORKDIR /app
 COPY package*.json ./
@@ -25,5 +24,5 @@ CMD ["nginx", "-g", "daemon off;"]
 
 # Ref https://www.middlewareinventory.com/blog/docker-vuejs/
 
-# docker build -t test .
-# docker run -it --rm -p 8080:80  test
+# docker build -t front -f frontend/Dockerfile frontend/
+# docker run -it --rm -p 8080:80  front

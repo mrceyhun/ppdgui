@@ -1,0 +1,90 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-ppdgui
+  labels:
+    app: ppdgui
+data:
+  # Setup script for short named env variables
+  config.yaml: |
+    host: '0.0.0.0'
+    port: 8081
+    base_url: '/ppdgui/api/v1'
+    api_v1_prefix: '/ppdgui/api/v1'
+    environment: 'dev'
+    loglevel: 'info'
+    allowed_cors_origins:
+      - 'http://localhost:8080'
+      - 'http://localhost:80'
+      - 'http://localhost'
+      - 'http://localhost:5173'
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ppdgui
+spec:
+  selector:
+    app: ppdgui
+  type: NodePort
+  ports:
+    - name: backend
+      port: 8081
+      targetPort: 8081
+      nodePort: 32000
+      protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ppdgui
+  labels:
+    app: ppdgui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ppdgui
+  template:
+    metadata:
+      labels:
+        app: ppdgui
+    spec:
+      hostname: ppdgui
+      containers:
+        - name: ppdgui
+          image: mrceyhun/ppdgui:0.0.0
+          env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8S_ENV
+              value: "prod"
+            - name: FAST_API_CONF
+              value: "/etc/ppdgui/config.yaml"
+          ports:
+            - containerPort: 8081
+              name: backend
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 6Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
+          stdin: true
+          tty: true
+          volumeMounts:
+            - name: eos
+              mountPath: /eos
+              mountPropagation: HostToContainer
+            - name: cm-ppdgui
+              mountPath: /etc/ppdgui
+      volumes:
+        - name: eos
+          hostPath:
+            path: /var/eos
+        - name: cm-ppdgui
+          configMap:
+            name: cm-ppdgui

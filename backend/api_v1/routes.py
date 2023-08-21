@@ -16,7 +16,7 @@ from backend.client import pyroot
 router = APIRouter()
 
 
-@router.post("/get-root-hist-or-dirs", response_model=ResponseRootObj)
+@router.post("/get-root-hist-or-dirs")
 async def get_root_dirs_or_hist(req: RequestRootObj):
     """Get ROOT histogram in JSON format by providing its file and obj path
     """
@@ -25,4 +25,4 @@ async def get_root_dirs_or_hist(req: RequestRootObj):
         return pyroot.get_root_dirs_or_hist(tfile=req.file_path, tobject=req.obj_path, all_hists=req.all_hists)
     except Exception as e:
         logging.error(f"Cannot process request. Incoming=> file{req.file_path}, obj:{req.obj_path} . Error: {str(e)}")
-        return HTTPException(status_code=400, detail="Cannot read file, err: " + str(e))
+        raise HTTPException(status_code=404, detail="Cannot read file, err: " + str(e))

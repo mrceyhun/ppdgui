@@ -41,7 +41,7 @@ CONFIG = read_config_yaml(
         key="FAST_API_CONF",
         default=os.path.join(os.path.dirname(__file__), "config.yaml"),
     ))
-logging.info(CONFIG.model_dump())
+print(CONFIG.model_dump())
 
 # Production: https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/
 app = FastAPI(title="FastAPI")

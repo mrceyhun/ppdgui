@@ -78,8 +78,7 @@ def get_root_dirs_or_hist(tfile: str, tobject: str = None, all_hists: bool = Fal
                                     "data": json.loads(str(ROOT.TBufferJSON.ToJSON(__obj)))
                                 })
                             )
-
+            return RESPONSE
     except Exception as e:
         logging.error(f"Object neither TH1F nor Directory. Incoming=> file{tfile}, obj:{tobject} . Error: {str(e)}")
-    finally:
-        return RESPONSE
+        raise

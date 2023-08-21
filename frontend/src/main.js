@@ -7,7 +7,7 @@ import router from './router';
 const app = createApp(App);
 
 // axios configs
-axios.defaults.baseURL = "http://localhost:8080/ppdgui/api";
+axios.defaults.baseURL = "http://localhost:8081/ppdgui/api";
 app.axios = axios;
 app.$http = axios;
 app.config.globalProperties.axios = axios;

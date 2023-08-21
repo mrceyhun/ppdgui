@@ -1,14 +1,19 @@
 ARG ROOT_TAG=6.28.04-ubuntu22.04
 
 FROM rootproject/root:$ROOT_TAG
-MAINTAINER Ceyhun Uzunoglu ceyhunuzngl@gmail.com
+LABEL maintainer="ceyhunuzngl@gmail.com"
+LABEL org.label-schema.url="https://github.com/mrceyhun/ppdgui/tree/main/backend"
 
 USER root
 # Required Python version(greater than or equal) for FastAPI
 ENV REQ_PY_VERSION=3.10
 
-COPY ./requirements.txt requirements.txt
-COPY ./config.yaml config.yaml
+ENV WDIR /data
+WORKDIR $WDIR
+COPY . ${WDIR}/
+
+ENV PATH="${PATH}:${WDIR}"
+ENV PYTHONPATH="${PYTHONPATH}:${WDIR}"
 
 # export PYTHONPATH=BASE/ppdgui:$PYTHONPATH
 # Check Python3 version. REQ_VER is REQ_PY_VERSION as int tuple (3,10), SYS_VER is system version tuple (3,10).
@@ -18,7 +23,12 @@ RUN python -c 'import sys,os; REQ_VER=tuple(int(i) for i in os.getenv("REQ_PY_VE
 RUN apt-get update -y &&  \
     apt-get install -y python3-pip &&  \
     pip install --upgrade pip  &&  \
-    pip install --no-cache-dir --upgrade -r requirements.txt && \
+    pip install --no-cache-dir --upgrade -r ${WDIR}/backend/requirements.txt && \
     rm -rf /var/lib/apt/lists/*
 
-# python backend/main.py
+
+EXPOSE 8081
+CMD ["python",  "backend/main.py"]
+
+# docker build -t back -f backend/Dockerfile .
+# docker run -it --rm -p 8081:8081 back /bin/bash
