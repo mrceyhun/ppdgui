@@ -53,7 +53,7 @@ spec:
       hostname: ppdgui
       containers:
         - name: ppdgui
-          image: mrceyhun/ppdgui:0.0.0
+          image: mrceyhun/ppdgui-back:0.0.0
           env:
             - name: MY_NODE_NAME
               valueFrom:
