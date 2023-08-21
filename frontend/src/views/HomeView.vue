@@ -2,13 +2,13 @@
 
 import Navbar from '../components/Navbar.vue';
 import Footer from '../components/Footer.vue';
-import HistogramList from '../components/HistogramList.vue';
+import Histograms from '../components/Histograms.vue';
 
 </script>
 
 <template>
   <Navbar />
-  <HistogramList />
+  <Histograms />
   <Footer />
 </template>
 <style scoped></style>

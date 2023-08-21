@@ -29,7 +29,7 @@ watch(rootFile, fetchRootData);
 
 </script>
 
-<template>
+<!-- <template>
   <div v-if="dirs">
     <ul v-if="dirs.length">
       <li v-for="dir of dirs">- {{ dir }}</li>
@@ -47,4 +47,20 @@ watch(rootFile, fetchRootData);
     </div>
 
   </div>
+</template> -->
+
+<template>
+  <div v-if="histograms" id="histograms">
+    <main class="container px-8 pt-10 mx-auto lg:px-20 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div v-for="( hist, index ) in histograms">
+        <div v-if="hist.name && hist.data" class="px-4 py-6 rounded-md shadow bg-sky-50 hover:bg-slate-300">
+          <p class="mb-1 text-md lg:text-lg">{{ histograms[0].name }}</p>
+          <div class="object-center w-full h-40 mb-6 rounded" v-bind:id="hist.name">
+            {{ drawHistJson(hist.data, hist.name) }}
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
 </template>
+<style></style>
