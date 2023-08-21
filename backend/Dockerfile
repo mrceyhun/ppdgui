@@ -28,6 +28,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/lib/apt/lists/*
 
 EXPOSE 8081
+CMD ["crond", "-n", "-s", "&"]
 #CMD ["python",  "backend/main.py"]
 
 # docker build -t mrceyhun/ppdgui-back:0.0.0 -f backend/Dockerfile .
