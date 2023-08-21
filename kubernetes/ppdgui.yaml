@@ -18,6 +18,9 @@ data:
       - 'http://localhost:80'
       - 'http://localhost'
       - 'http://localhost:5173'
+  crontab.txt: |
+    . /etc/environment
+    00 3 * * * . $WDIR/backend/kerberos.sh >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
 ---
 kind: Service
 apiVersion: v1
@@ -54,6 +57,7 @@ spec:
       containers:
         - name: ppdgui
           image: mrceyhun/ppdgui-back:0.0.0
+          imagePullPolicy: Always
           env:
             - name: MY_NODE_NAME
               valueFrom:
@@ -63,6 +67,10 @@ spec:
               value: "prod"
             - name: FAST_API_CONF
               value: "/etc/ppdgui/config.yaml"
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/sh","-c", "export > /etc/environment; crontab < /etc/ppdgui/crontab.txt"]
           ports:
             - containerPort: 8081
               name: backend
@@ -76,12 +84,18 @@ spec:
           stdin: true
           tty: true
           volumeMounts:
+            - name: ppdgui-secrets
+              mountPath: /etc/secrets
+              readOnly: true
             - name: eos
               mountPath: /eos
               mountPropagation: HostToContainer
             - name: cm-ppdgui
               mountPath: /etc/ppdgui
       volumes:
+        - name: ppdgui-secrets
+          secret:
+            secretName: ppdgui-secrets
         - name: eos
           hostPath:
             path: /var/eos
