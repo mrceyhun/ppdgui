@@ -39,7 +39,7 @@ spec:
         # ------------- BACKEND ------------------------------------------------------
         - name: backend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-back:0.0.5
+          image: mrceyhun/ppdgui-back:latest
           command: [ "backend/run.sh" ]
           args: [ "/etc/secrets/keytab" ]
           env:
@@ -73,7 +73,7 @@ spec:
         # ------------- FRONTEND -----------------------------------------------------
         - name: frontend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-front:0.0.5
+          image: mrceyhun/ppdgui-front:latest
           command: [ "/run.sh" ]
           env:
             - name: MY_NODE_NAME
