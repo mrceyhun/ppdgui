@@ -34,13 +34,12 @@ if [ -z "${pid}" ]; then
     echo "Cron is not running, starting..."
     . /etc/environment
     cron -f &
-    sleep 5
-    pid=$(cat /var/run/crond.pid)
-    echo "Cron is started now and running with pid:${pid}"
 fi
+pid=$(pgrep --exact 'cron')
+echo "Cron PID:${pid}"
 
 # Initial kerberos authentication
-backend/kerberos.sh "$keytab" >>/proc/"${pid}"/fd/1 2>&1
+backend/kerberos.sh "$keytab"
 
 # Add daily kerberos ticket update cron job to crontab
 export >/etc/environment
