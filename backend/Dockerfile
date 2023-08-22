@@ -29,6 +29,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 
 EXPOSE 8081
 #CMD ["python",  "backend/main.py"]
+# python backend/main.py >>/proc/1/fd/1 2>&1 &
 
 # docker build -t mrceyhun/ppdgui-back:0.0.0 -f backend/Dockerfile .
 # docker run -it --rm -p 8081:8081 mrceyhun/ppdgui-back:0.0.0 /bin/bash

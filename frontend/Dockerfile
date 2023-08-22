@@ -11,16 +11,17 @@ RUN apt-get update -y && \
     ln -s /usr/bin/python3.11 /usr/bin/python
 
 WORKDIR /app
-COPY package*.json ./
+COPY ./frontend/package*.json ./
 RUN npm install
-COPY . .
+COPY ./frontend .
 RUN npm run build
 
 # production stage
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY ./frontend/substitute_environment_variables.sh /
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+#CMD ["nginx", "-g", "daemon off;"]
 
 # Ref https://www.middlewareinventory.com/blog/docker-vuejs/
 

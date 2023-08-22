@@ -14,7 +14,9 @@ data:
     environment: 'dev'
     loglevel: 'info'
     allowed_cors_origins:
+      - 'http://ceyhun-k8s-lbva4duqns2g-node-0:32000'
       - 'http://localhost:8080'
+      - 'http://localhost:8081'
       - 'http://localhost:80'
       - 'http://localhost'
       - 'http://localhost:5173'
@@ -34,6 +36,11 @@ spec:
     - name: backend
       port: 8081
       targetPort: 8081
+      nodePort: 32001
+      protocol: TCP
+    - name: frontend
+      port: 80
+      targetPort: 80
       nodePort: 32000
       protocol: TCP
 ---
@@ -55,9 +62,11 @@ spec:
     spec:
       hostname: ppdgui
       containers:
-        - name: ppdgui
+        # ------------- BACKEND ------------------------------------------------------
+        - name: backend
           image: mrceyhun/ppdgui-back:0.0.0
           imagePullPolicy: Always
+          command: [ "/bin/bash" ]
           env:
             - name: MY_NODE_NAME
               valueFrom:
@@ -67,10 +76,10 @@ spec:
               value: "prod"
             - name: FAST_API_CONF
               value: "/etc/ppdgui/config.yaml"
-          lifecycle:
-            postStart:
-              exec:
-                command: ["/bin/sh","-c", "export > /etc/environment; crontab < /etc/ppdgui/crontab.txt"]
+          #          lifecycle:
+          #            postStart:
+          #              exec:
+          #                command: [ "/bin/sh","-c", "export > /etc/environment; crontab < /etc/ppdgui/crontab.txt" ]
           ports:
             - containerPort: 8081
               name: backend
@@ -92,6 +101,27 @@ spec:
               mountPropagation: HostToContainer
             - name: cm-ppdgui
               mountPath: /etc/ppdgui
+        # ------------- FRONTEND -----------------------------------------------------
+        - name: frontend
+          image: mrceyhun/ppdgui-front:0.0.0
+          imagePullPolicy: Always
+          command: [ "/bin/sh","-c" ]
+          args: [ "/substitute_environment_variables.sh; nginx -g 'daemon off;';" ]
+          env:
+            - name: K8S_ENV
+              value: "prod"
+            - name: VITE_BACKEND_API_BASE_URL
+              value: "http://ceyhun-k8s-lbva4duqns2g-node-0:32001/ppdgui/api"
+          ports:
+            - containerPort: 80
+              name: frontend
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+            requests:
+              cpu: 500m
+              memory: 750Mi
       volumes:
         - name: ppdgui-secrets
           secret:

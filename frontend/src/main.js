@@ -8,8 +8,9 @@ const app = createApp(App);
 
 // axios configs
 // Required environment variable for backend API, should start with VITE_
-const backend_api_base = import.meta.env.VITE_BACKEND_API_BASE_URL;
-axios.defaults.baseURL = backend_api_base ? backend_api_base : "http://localhost:8081/ppdgui/api";
+// frontend/substitute_environment_variables.sh will replace it. Read it for more details.
+
+axios.defaults.baseURL = "VITE_BACKEND_API_BASE_URL";
 app.axios = axios;
 app.$http = axios;
 app.config.globalProperties.axios = axios;

@@ -12,6 +12,5 @@ npm run dev
 http://localhost:5173/
 ```
 
-
 ## Refs:
 https://blog.logrocket.com/complex-vue-3-state-management-pinia/
