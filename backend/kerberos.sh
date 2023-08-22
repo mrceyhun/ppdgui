@@ -1,8 +1,10 @@
 #!/bin/sh
 # Author     : Ceyhun Uzunoglu <ceyhunuzngl AT gmail dot com>
 
-##H Usage: kerberos.sh $keytab
-##H Examples: kerberos.sh /etc/secrets/keytab
+##H Get kerberos ticket using keytab
+##H Important : [Works only for KVNO 9 and keytab created using 'cern-get-keytab' script]
+##H Usage     : kerberos.sh $keytab
+##H Examples  : kerberos.sh /etc/secrets/keytab
 ##H
 
 # help definition
