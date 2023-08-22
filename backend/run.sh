@@ -34,6 +34,7 @@ if [ -z "${pid}" ]; then
     echo "Cron is not running, starting..."
     . /etc/environment
     cron -f &
+    sleep 5
     pid=$(cat /var/run/crond.pid)
     echo "Cron is started now and running with pid:${pid}"
 fi
