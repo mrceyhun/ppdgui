@@ -1,4 +1,6 @@
 #!/bin/sh
+# Author     : Ceyhun Uzunoglu <ceyhunuzngl AT gmail dot com>
+
 ##H Usage: kerberos.sh $keytab
 ##H Examples: kerberos.sh /etc/secrets/keytab
 ##H
@@ -11,7 +13,18 @@ fi
 
 keytab=$1
 echo "using keytab=$keytab"
-principal=$(klist -k "$keytab" | tail -1 | awk '{print $2}')
+
+# Current klist -k returns both username@REALM and first.last@REALM as principals, and only "username@REALM" works in our network
+
+# Get realm, see the "@" at the beginning
+realm=@$(klist -k "$keytab" | tail -1 | awk -F'@' '{print $2}')
+
+# Get principal which is not "firstname.lastname" but instead "username"
+principal=$(klist -k "$keytab" | grep '@' | awk '{print $2}' | awk -F"$realm" '{print $1}' | grep -v '\.' | head -1)
+
+# Principal format is username@REALM
+principal="${principal}${realm}"
+
 echo "principal=$principal"
 kinit "${principal}" -k -f -p -r 7d -l 7d -t "${keytab}"
 exit_status=$?
