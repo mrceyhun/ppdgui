@@ -39,8 +39,9 @@ spec:
         # ------------- BACKEND ------------------------------------------------------
         - name: backend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-back:0.0.0
+          image: mrceyhun/ppdgui-back:0.0.3
           command: [ "backend/run.sh" ]
+          args: [ "/etc/secrets/keytab" ]
           env:
             - name: K8S_ENV
               value: "prod"
@@ -68,7 +69,7 @@ spec:
         # ------------- FRONTEND -----------------------------------------------------
         - name: frontend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-front:0.0.0
+          image: mrceyhun/ppdgui-front:0.0.3
           command: [ "/run.sh" ]
           env:
             - name: MY_NODE_NAME

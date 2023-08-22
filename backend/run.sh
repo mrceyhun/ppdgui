@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 # Author     : Ceyhun Uzunoglu <ceyhunuzngl AT gmail dot com>
 
 ##H Runs backend service
@@ -28,6 +27,8 @@ keytab=$1
 sed "s/_MY_NODE_NAME_/$MY_NODE_NAME/" backend/config.tmpl.yaml >"$FAST_API_CONF"
 
 # Start CRON for kerberos cron job
+
+# do not put set -e which cause undesired exit of pgrep on not found: exits with 1
 pid=$(pgrep --exact 'cron')
 if [ -z "${pid}" ]; then
     echo "Cron is not running, starting..."
