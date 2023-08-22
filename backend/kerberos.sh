@@ -1,6 +1,5 @@
 #!/bin/sh
 ##H Usage: kerberos.sh $keytab
-##H
 ##H Examples: kerberos.sh /etc/secrets/keytab
 ##H
 

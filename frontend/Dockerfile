@@ -19,7 +19,7 @@ RUN npm run build
 # production stage
 FROM nginx:stable-alpine as production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY ./frontend/substitute_environment_variables.sh /
+COPY ./frontend/run.sh /
 EXPOSE 80
 #CMD ["nginx", "-g", "daemon off;"]
 

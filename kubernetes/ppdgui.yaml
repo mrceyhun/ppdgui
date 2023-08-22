@@ -1,29 +1,3 @@
-kind: ConfigMap
-apiVersion: v1
-metadata:
-  name: cm-ppdgui
-  labels:
-    app: ppdgui
-data:
-  # Setup script for short named env variables
-  config.yaml: |
-    host: '0.0.0.0'
-    port: 8081
-    base_url: '/ppdgui/api/v1'
-    api_v1_prefix: '/ppdgui/api/v1'
-    environment: 'dev'
-    loglevel: 'info'
-    allowed_cors_origins:
-      - 'http://ceyhun-k8s-lbva4duqns2g-node-0:32000'
-      - 'http://localhost:8080'
-      - 'http://localhost:8081'
-      - 'http://localhost:80'
-      - 'http://localhost'
-      - 'http://localhost:5173'
-  crontab.txt: |
-    . /etc/environment
-    00 3 * * * . $WDIR/backend/kerberos.sh >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1
----
 kind: Service
 apiVersion: v1
 metadata:
@@ -64,22 +38,14 @@ spec:
       containers:
         # ------------- BACKEND ------------------------------------------------------
         - name: backend
-          image: mrceyhun/ppdgui-back:0.0.0
           imagePullPolicy: Always
-          command: [ "/bin/bash" ]
+          image: mrceyhun/ppdgui-back:0.0.0
+          command: [ "backend/run.sh" ]
           env:
-            - name: MY_NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
             - name: K8S_ENV
               value: "prod"
             - name: FAST_API_CONF
-              value: "/etc/ppdgui/config.yaml"
-          #          lifecycle:
-          #            postStart:
-          #              exec:
-          #                command: [ "/bin/sh","-c", "export > /etc/environment; crontab < /etc/ppdgui/crontab.txt" ]
+              value: "/data/backend/config.yaml"
           ports:
             - containerPort: 8081
               name: backend
@@ -99,19 +65,20 @@ spec:
             - name: eos
               mountPath: /eos
               mountPropagation: HostToContainer
-            - name: cm-ppdgui
-              mountPath: /etc/ppdgui
         # ------------- FRONTEND -----------------------------------------------------
         - name: frontend
-          image: mrceyhun/ppdgui-front:0.0.0
           imagePullPolicy: Always
-          command: [ "/bin/sh","-c" ]
-          args: [ "/substitute_environment_variables.sh; nginx -g 'daemon off;';" ]
+          image: mrceyhun/ppdgui-front:0.0.0
+          command: [ "frontend/run.sh" ]
           env:
+            - name: MY_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: K8S_ENV
               value: "prod"
-            - name: VITE_BACKEND_API_BASE_URL
-              value: "http://ceyhun-k8s-lbva4duqns2g-node-0:32001/ppdgui/api"
+            - name: VITE_BACKEND_API_BASE_URL # see frontend/src/main.js and frontend/run.sh, used in axios
+              value: "http://$(MY_NODE_NAME):32001/ppdgui/api"
           ports:
             - containerPort: 80
               name: frontend
@@ -129,6 +96,3 @@ spec:
         - name: eos
           hostPath:
             path: /var/eos
-        - name: cm-ppdgui
-          configMap:
-            name: cm-ppdgui
