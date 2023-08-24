@@ -4,7 +4,7 @@
 
 - `git tag -a 0.0.1 -m "Test docker build with GH actions"`
 - `git push origin 0.0.1`
-- And check actions: https://github.com/mrceyhun/ppdgui/actions/runs/5940530279
+- And check actions: https://github.com/mrceyhun/ppdgui/actions
 
 ### How to migrate another repository
 
