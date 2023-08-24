@@ -24,13 +24,14 @@ Main Endpoint: http://ceyhun-k8s-lbva4duqns2g-node-0:32000 // accessible only in
 
 ### Repository structure
 
+Each folder includes its README.md file to understand details such as how to run server, how to build and push docker image, how to create new GH tag, etc.
+
 - **backend**:  FastAPI, PyROOT, tests, its Dockerfile
 - **frontend**:  Vue.js, Vite(just for vue deployment and build), tailwind CSS, JSROOT, its Dockerfile
 - **kubernetes**:  ppdgui.yaml Kubernetes manifest file for both Frontend and Backend deployment
 - **.github/workflows**: CI, GitHub actions that automatically builds docker images of both frontend and backend, and pushes to docker registry:
     - https://hub.docker.com/repository/docker/mrceyhun/ppdgui-front
     - https://hub.docker.com/repository/docker/mrceyhun/ppdgui-back
-
 
 
 ## Kubernetes
@@ -59,3 +60,4 @@ Main Endpoint: http://ceyhun-k8s-lbva4duqns2g-node-0:32000 // accessible only in
 
 - [kubernetes/README.md](kubernetes/README.md)
 - [frontend/README.md](frontend/README.md)
+- [.github/workflows/README.md](.github/workflows/README.md)
