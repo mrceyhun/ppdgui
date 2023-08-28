@@ -1,0 +1,46 @@
+[
+  {
+    "group": "L1T",
+    "file_path": "/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/JetMET1/0003699xx/DQM_V0001_R000369956__JetMET1__Run2023D-PromptReco-v1__DQMIO.root",
+    "obj_path": "DQMData/Run 369956/L1T/Run summary/L1TObjects/L1TJet/timing",
+    "description": "Black&White, learn how to draw colorful",
+    "histograms": [
+      {
+        "type": "TH2F",
+        "name": "jet_eta_phi_bx_0"
+      },
+      {
+        "type": "TH2F",
+        "name": "jet_eta_phi_bx_minus1"
+      },
+      {
+        "type": "TH2F",
+        "name": "jet_eta_phi_bx_minus2"
+      },
+      {
+        "type": "TH2F",
+        "name": "jet_eta_phi_bx_plus1"
+      },
+      {
+        "type": "TH2F",
+        "name": "jet_eta_phi_bx_plus2"
+      }
+    ]
+  },
+  {
+    "group": "HLT",
+    "file_path": "/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/HLTPhysics/0003699xx/DQM_V0001_R000369956__HLTPhysics__Run2023D-PromptReco-v1__DQMIO.root",
+    "obj_path": "DQMData/Run 369956/HLT/Run summary/JME/Jets/AK4/PF/HLT_PFJet260",
+    "description": "Axis scale is not correct, learn how to do draw it correctly",
+    "histograms": [
+      {
+        "type": "TH1F",
+        "name": "effic_pfjeteta"
+      },
+      {
+        "type": "TH1F",
+        "name": "effic_pfjeteta_HB"
+      }
+    ]
+  }
+]
