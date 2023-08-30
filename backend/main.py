@@ -4,43 +4,15 @@
 Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : FastAPI main.py
 """
-import logging
-import os
-
-import click
 import uvicorn
-import yaml
 from fastapi import FastAPI, __version__ as fastapi_version
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 
 from backend.api_v1.routes import router
-
-
-class Config(BaseModel):
-    """FastApi config schema"""
-    host: str
-    port: int
-    base_url: str
-    api_v1_prefix: str
-    loglevel: str
-    environment: str
-    allowed_cors_origins: list[str]
-
-
-def read_config_yaml(file_path: str) -> Config:
-    with open(file_path, 'r') as stream:
-        config = yaml.safe_load(stream)
-
-    return Config(**config)
-
+from backend.config import get_config
 
 # Get config as object
-CONFIG = read_config_yaml(
-    os.getenv(
-        key="FAST_API_CONF",
-        default=os.path.join(os.path.dirname(__file__), "config.yaml"),
-    ))
+CONFIG = get_config()
 print(CONFIG.model_dump())
 
 # Production: https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/

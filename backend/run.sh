@@ -45,7 +45,8 @@ backend/kerberos.sh "$keytab"
 export >/etc/environment
 (
     crontab -l 2>/dev/null
-    echo "00 3 * * * . /etc/environment; $WDIR/backend/kerberos.sh /etc/secrets/keytab $ >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
+    echo "00 3 * * * . /etc/environment; $WDIR/backend/kerberos.sh /etc/secrets/keytab >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
+    echo "*/10 * * * * . /etc/environment; python $WDIR/backend/dqm_meta/eos_grinder.py >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
 ) | crontab -
 
 # START FastAPI

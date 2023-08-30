@@ -10,8 +10,8 @@ allowed_cors_origins:
   - 'http://localhost'
   - 'http://localhost:5173'
 dqm_meta_store:
-  base_dqm_eos_dir: '/eos/cms/store/group/comm_dqm/DQMGUI_data'
-  find_tmp_results_file: 'dqm_root_files.txt'
-  meta_store_json_file: 'dqm_meta.json'
-  last_n_run_years: 2
+  base_dqm_eos_dir: 'backend/tests/data/DQMGUI_data'
+  find_tmp_results_file: 'backend/tests/data/find.txt'
+  meta_store_json_file: 'backend/tests/data/dqm_meta.json'
+  last_n_run_years: 1
   file_suffix_pat: '*DQMIO.root'

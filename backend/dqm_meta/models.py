@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class DqmRootSingleFileMeta(BaseModel):
+class DqmRootFileMetadata(BaseModel):
     """Representation of DQM GUI EOS root file parsed metadata in stored for easy querying"""
     year: int  # Run year
     run: int  # Run number
@@ -12,4 +12,4 @@ class DqmRootSingleFileMeta(BaseModel):
 
 class DqmMetaStore(BaseModel):
     """Main DQM ROOT files metadata format"""
-    data: list[DqmRootSingleFileMeta]
+    data: list[DqmRootFileMetadata]

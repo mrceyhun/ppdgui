@@ -5,9 +5,6 @@ Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : PyROOT util tests
 """
 
-import os
-import json
-
 from backend.client import pyroot
 from . import TEST_BIG_ROOT_FILE
 

@@ -4,35 +4,28 @@
 Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : Client to search DQM GUI root files, directories, run numbers and datasets
 """
-
-from backend.client.models import DqmMetaStore
-
-DQM_META_JSON_FILE = 'downloads/formatted.json'
-global META_STORE
+from backend.config import Config
+from backend.dqm_meta.models import DqmMetaStore
 
 
-def read_dqm_meta_json(input_file: str) -> DqmMetaStore:
-    """Get DqmMetaStore from json file"""
-    with open(input_file) as fin:
-        return DqmMetaStore.model_validate_json(fin.read())
+class DqmMetaStoreClient:
+    """DqmMetaStore client"""
 
+    def __init__(self, config: Config):
+        """Get DqmMetaStore from json file
 
-def init_meta_store() -> DqmMetaStore:
-    global META_STORE
-    if META_STORE:
-        return META_STORE
-    META_STORE = read_dqm_meta_json(DQM_META_JSON_FILE)
-    return META_STORE
+        Args:
+            config: given Config object to get `dqm_meta_store.meta_store_json_file`
+        """
+        self.store = None
+        with open(config.dqm_meta_store.meta_store_json_file) as f:
+            self.store = DqmMetaStore.model_validate_json(f.read())
 
+    def get_last_run(self) -> int:
+        """Get recent Run number"""
+        run_number = max([item.run for item in self.store.data])
+        return run_number
 
-def get_last_run() -> int:
-    """Get recent Run number"""
-    dqm_meta = init_meta_store()
-    run_number = max([item.run for item in dqm_meta.data])
-    return run_number
-
-
-def get_last_run_root_files() -> list[str]:
-    dqm_meta = init_meta_store()
-    last_run = get_last_run()
-    return [item.eos_path for item in dqm_meta.data if item.run == last_run]
+    def get_last_run_root_files(self) -> list[str]:
+        last_run = self.get_last_run()
+        return [item.eos_path for item in self.store.data if item.run == last_run]
