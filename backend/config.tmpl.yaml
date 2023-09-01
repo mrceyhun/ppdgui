@@ -17,3 +17,28 @@ dqm_meta_store:
   meta_store_json_file: '/data/dqm_meta.json'
   last_n_run_years: 2
   file_suffix_pat: '*DQMIO.root'
+detector_histogram_groups:
+  - group: 'L1T'
+    group_directory: 'JetMET1'
+    histograms_tdirectory_pattern: 'DQMData/Run {run_num_int}/L1T/Run summary/L1TObjects/L1TJet/timing'
+    description: 'Black&White, learn how to draw colorful'
+    histograms:
+      - name: 'jet_eta_phi_bx_0'
+        type: 'TH2F'
+      - name: 'jet_eta_phi_bx_minus1'
+        type: 'TH2F'
+      - name: 'jet_eta_phi_bx_minus2'
+        type: 'TH2F'
+      - name: 'jet_eta_phi_bx_plus1'
+        type: 'TH2F'
+      - name: 'jet_eta_phi_bx_plus2'
+        type: 'TH2F'
+  - group: 'HLT'
+    group_directory: 'HLTPhysics'
+    histograms_tdirectory_pattern: 'DQMData/Run {run_num_int}/HLT/Run summary/JME/Jets/AK4/PF/HLT_PFJet260'
+    description: 'Axis scale is not correct, learn how to do draw it correctly'
+    histograms:
+      - name: 'effic_pfjeteta'
+        type: 'TH1F'
+      - name: 'effic_pfjeteta_HB'
+        type: 'TH1F'

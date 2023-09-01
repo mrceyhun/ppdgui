@@ -7,7 +7,7 @@ Description : FastAPI main.py
 import logging
 from fastapi import APIRouter, HTTPException
 
-from backend.api_v1.models import RequestRootObj, ResponseRootObj
+from backend.api_v1.models import RequestRootObj
 from backend.client import pyroot
 
 # ----------------------------------------------------------------------------

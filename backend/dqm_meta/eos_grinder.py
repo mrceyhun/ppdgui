@@ -11,7 +11,9 @@ import subprocess
 from datetime import datetime
 
 from backend.config import get_config
-from backend.dqm_meta.models import DqmRootFileMetadata, DqmMetaStore
+from backend.dqm_meta.models import DqmFileMetadata, DqmMetaStore
+
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -45,7 +47,7 @@ def run(dqm_eos_dir, find_tmp_results_file, meta_store_json_file, last_n_run_yea
         if os.path.exists(run_dir):
             base_search_dirs.append(run_dir)
         else:
-            logging.warning(f"Run directory not exist: {run_dir}")
+            logger.warning(f"Run directory not exist: {run_dir}")
 
     # Run find script and store its data in
     run_sh_find_cmd(base_search_dirs, find_tmp_results_file, file_suffix_pat)
@@ -66,9 +68,9 @@ def run_sh_find_cmd(base_eos_dirs: list[str], outfile: str, file_suffix_pat: str
     cmd = f"find {' '.join(base_eos_dirs)} -iname '{file_suffix_pat}' >{outfile}"
     r = subprocess.run(cmd, capture_output=True, shell=True, check=True)
 
-    logging.info(f"Exit code: {r.returncode}")
-    logging.info(f"Stdout: {r.stdout.decode('utf-8')}")
-    logging.info(f"Stderr: {r.stderr.decode('utf-8')}")
+    logger.info(f"Exit code: {r.returncode}")
+    logger.info(f"Stdout: {r.stdout.decode('utf-8')}")
+    logger.info(f"Stderr: {r.stderr.decode('utf-8')}")
     r.check_returncode()
 
 
@@ -82,20 +84,20 @@ def get_formatted_meta_from_raw_input(input_file) -> DqmMetaStore:
     """
     # Compiled regex pattern to parse ROOT file name
     #   Expected input: /eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/AlCaPPSPrompt/0003658xx/DQM_V0001_R000365835__AlCaPPSPrompt__Run2023A-PromptReco-v1__DQMIO.root
-    #   Expected output of re groupdict: {'year': '2023', 'det_group': 'AlCaPPSPrompt', 'run': '000365835', 'dataset': 'Run2023A-PromptReco-v1'}
+    #   Expected output of re groupdict: {'year': '2023', 'group_directory': 'AlCaPPSPrompt', 'run': '000365835', 'dataset': 'Run2023A-PromptReco-v1'}
     regex_pattern = re.compile(
-        r".+?/Run(?P<year>\d+)/(?P<det_group>.+?)/(.+?)/DQM_V(\d+)_R(?P<run>\d+)__(.+?)__(?P<dataset>.+?)__DQMIO.root")
+        r".+?/Run(?P<year>\d+)/(?P<group_directory>.+?)/(.+?)/DQM_V(\d+)_R(?P<run>\d+)__(.+?)__(?P<dataset>.+?)__DQMIO.root")
 
     try:
         with open(input_file) as fin:
             formatted_metadata_list = [_get_one_file_meta(f, regex_pattern) for f in fin.readlines()]
-            return DqmMetaStore(data=formatted_metadata_list)
+            return DqmMetaStore(formatted_metadata_list)
     except Exception as e:
-        logging.error(f"Cannot parse data of given input file. input file:{input_file}. Error: {str(e)}")
+        logger.error(f"Cannot parse data of given input file. input file:{input_file}. Error: {str(e)}")
         raise
 
 
-def _get_one_file_meta(file, rxpat) -> DqmRootFileMetadata:
+def _get_one_file_meta(file, rxpat) -> DqmFileMetadata:
     """Returns parsed DqmRootFileMetadata for a single DQM ROOT file
 
     Args:
@@ -106,10 +108,16 @@ def _get_one_file_meta(file, rxpat) -> DqmRootFileMetadata:
     """
 
     file = file.strip()  # Remove new line
-    m = re.match(rxpat, file)  # Match regex
+    mdict = re.match(rxpat, file).groupdict()  # Match regex and get key-value pairs as dict
 
     # Get regex group dict in which the names are already provided in the regex pattern, so don't afraid ;)
-    return DqmRootFileMetadata(**{**m.groupdict(), **{'eos_path': file}})
+    return DqmFileMetadata(
+        year=mdict['year'],
+        run=mdict['run'],
+        group_directory=mdict['group_directory'],
+        dataset=mdict['dataset'],
+        root_file=file
+    )
 
 
 if __name__ == "__main__":

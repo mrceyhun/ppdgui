@@ -1,15 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 
-class DqmRootFileMetadata(BaseModel):
-    """Representation of DQM GUI EOS root file parsed metadata in stored for easy querying"""
+class DqmFileMetadata(BaseModel):
+    """Representation of single DQM ROOT file's parsed metadata"""
     year: int  # Run year
     run: int  # Run number
-    det_group: str  # Detector group name, or workspace in DQMGUI: L1T, L1TEMU, HLT,  Pixel, so on
+    group_directory: str  # Detector group directory: JetMET1, HLTPhysics, so on
     dataset: str  # Dataset name embedded in the ROOT file name: Run2023A-PromptReco-v1, Run2023D-Express-v1
-    eos_path: str  # full EOS path of the root file
+    root_file: str  # full EOS path of the root file
 
 
-class DqmMetaStore(BaseModel):
+class DqmMetaStore(RootModel):
     """Main DQM ROOT files metadata format"""
-    data: list[DqmRootFileMetadata]
+    root: list[DqmFileMetadata]
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, item):
+        return self.root[item]
