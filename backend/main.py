@@ -8,8 +8,8 @@ import uvicorn
 from fastapi import FastAPI, __version__ as fastapi_version
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.api_v1.routes import router
-from backend.config import get_config
+from api_v1.routes import router
+from config import get_config
 
 # Get config as object
 CONFIG = get_config()

@@ -4,8 +4,28 @@
 Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : Client to search DQM GUI root files, directories, run numbers and datasets
 """
+from pydantic import BaseModel, RootModel
 from backend.config import Config
-from backend.dqm_meta.models import DqmMetaStore, DqmFileMetadata
+
+
+class DqmFileMetadata(BaseModel):
+    """Representation of single DQM ROOT file's parsed metadata"""
+    year: int  # Run year
+    run: int  # Run number
+    group_directory: str  # Detector group directory: JetMET1, HLTPhysics, so on
+    dataset: str  # Dataset name embedded in the ROOT file name: Run2023A-PromptReco-v1, Run2023D-Express-v1
+    root_file: str  # full EOS path of the root file
+
+
+class DqmMetaStore(RootModel):
+    """Main DQM ROOT files metadata format"""
+    root: list[DqmFileMetadata]
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, item):
+        return self.root[item]
 
 
 class DqmMetaStoreClient:
@@ -22,7 +42,7 @@ class DqmMetaStoreClient:
         with open(config.dqm_meta_store.meta_store_json_file) as f:
             self.store = DqmMetaStore.model_validate_json(f.read())
 
-    def last_run(self, year: int | None = None) -> (int, int):
+    def last_run_number(self, year: int | None = None) -> (int, int):
         """Get recent Run number with given year or with recent year by default"""
         if year:
             run_number = max([item.run for item in self.store.root if item.year == year])
@@ -33,7 +53,7 @@ class DqmMetaStoreClient:
 
         return run_number, year
 
-    def get_run_root_files(self, run_number: int) -> list[str]:
+    def get_root_files_of_run(self, run_number: int) -> list[str]:
         """"Get all ROOT files of a run"""
         return [item.root_file for item in self.store.root if item.run == run_number]
 

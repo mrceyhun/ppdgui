@@ -11,24 +11,24 @@ import subprocess
 from datetime import datetime
 
 from backend.config import get_config
-from backend.dqm_meta.models import DqmFileMetadata, DqmMetaStore
+from .client import DqmMetaStore, DqmFileMetadata
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=get_config().loglevel.upper())
 
 
-def main():
+def run():
     """Run with given yaml config"""
     # Get config as object
     conf = get_config()
     dqm_meta_conf = conf.dqm_meta_store
-    run(dqm_eos_dir=dqm_meta_conf.base_dqm_eos_dir,
-        find_tmp_results_file=dqm_meta_conf.find_tmp_results_file,
-        meta_store_json_file=dqm_meta_conf.meta_store_json_file,
-        last_n_run_years=dqm_meta_conf.last_n_run_years,
-        file_suffix_pat=dqm_meta_conf.file_suffix_pat)
+    create_sqm_store(dqm_eos_dir=dqm_meta_conf.base_dqm_eos_dir,
+                     find_tmp_results_file=dqm_meta_conf.find_tmp_results_file,
+                     meta_store_json_file=dqm_meta_conf.meta_store_json_file,
+                     last_n_run_years=dqm_meta_conf.last_n_run_years,
+                     file_suffix_pat=dqm_meta_conf.file_suffix_pat)
 
 
-def run(dqm_eos_dir, find_tmp_results_file, meta_store_json_file, last_n_run_years, file_suffix_pat):
+def create_sqm_store(dqm_eos_dir, find_tmp_results_file, meta_store_json_file, last_n_run_years, file_suffix_pat):
     """Find DQMGui ROOT files in EOS directories in last 2 Run years and store them as DqmMetaStore schema
 
     Args:
@@ -47,7 +47,7 @@ def run(dqm_eos_dir, find_tmp_results_file, meta_store_json_file, last_n_run_yea
         if os.path.exists(run_dir):
             base_search_dirs.append(run_dir)
         else:
-            logger.warning(f"Run directory not exist: {run_dir}")
+            logging.warning(f"Run directory not exist: {run_dir}")
 
     # Run find script and store its data in
     run_sh_find_cmd(base_search_dirs, find_tmp_results_file, file_suffix_pat)
@@ -68,9 +68,9 @@ def run_sh_find_cmd(base_eos_dirs: list[str], outfile: str, file_suffix_pat: str
     cmd = f"find {' '.join(base_eos_dirs)} -iname '{file_suffix_pat}' >{outfile}"
     r = subprocess.run(cmd, capture_output=True, shell=True, check=True)
 
-    logger.info(f"Exit code: {r.returncode}")
-    logger.info(f"Stdout: {r.stdout.decode('utf-8')}")
-    logger.info(f"Stderr: {r.stderr.decode('utf-8')}")
+    logging.info(f"Exit code: {r.returncode}")
+    logging.info(f"Stdout: {r.stdout.decode('utf-8')}")
+    logging.info(f"Stderr: {r.stderr.decode('utf-8')}")
     r.check_returncode()
 
 
@@ -93,7 +93,7 @@ def get_formatted_meta_from_raw_input(input_file) -> DqmMetaStore:
             formatted_metadata_list = [_get_one_file_meta(f, regex_pattern) for f in fin.readlines()]
             return DqmMetaStore(formatted_metadata_list)
     except Exception as e:
-        logger.error(f"Cannot parse data of given input file. input file:{input_file}. Error: {str(e)}")
+        logging.error(f"Cannot parse data of given input file. input file:{input_file}. Error: {str(e)}")
         raise
 
 
@@ -118,7 +118,3 @@ def _get_one_file_meta(file, rxpat) -> DqmFileMetadata:
         dataset=mdict['dataset'],
         root_file=file
     )
-
-
-if __name__ == "__main__":
-    main()

@@ -16,7 +16,7 @@ dqm_meta_store:
   last_n_run_years: 1
   file_suffix_pat: '*DQMIO.root'
 detector_histogram_groups:
-  - group: 'HLT'
+  - gname: 'HLT'
     group_directory: 'HLTPhysics'
     histograms_tdirectory_pattern: 'DQMData/Run {run_num_int}/HLT/Run summary/JME/Jets/AK4/PF/HLT_PFJet260'
     description: 'Axis scale is not correct, learn how to do draw it correctly'

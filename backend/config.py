@@ -26,7 +26,7 @@ class ConfigHistogram(BaseModel):
 
 class ConfigDetectorGroup(BaseModel):
     """Histogram group for a detector like L1T HLT"""
-    group: str  # Group name: L1T, HLT
+    gname: str  # Group name: L1T, HLT
     group_directory: str  # Group directory, separate group name: JetMET1, HLTPhysics, ...
     histograms_tdirectory_pattern: str  # Holds the TDirectory pattern(requires run number) of the required histograms in the ROOT file
     description: str | None = None  # Optional description

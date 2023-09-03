@@ -4,25 +4,25 @@ import axios from 'axios';
 import { drawHistJson } from '../stores/utils'
 
 
-const rootFile = ref('')
+const run_year = ref(0)
+const run_number = ref(0)
 const errorMessage = ref('')
-const rootObjPath = ref('')
 const resp = ref('')
 
 
 async function fetchRootData() {
-  console.log(rootFile.value);
-  console.log(rootObjPath.value);
+  console.log(run_year.value + " - " + run_number.value);
 
   try {
     errorMessage.value = null;
-    const response = await axios.post("/v1/get-root-hist-or-dirs",
+    const response = await axios.post("/v1/get-histogram-jsons",
       {
-        "file_path": rootFile.value,
-        "obj_path": rootObjPath.value,
-        "all_hists": true
+        "run_year": run_year.value,
+        "run_number": run_number.value,
       });
     resp.value = await response.data;
+    console.log("Response:")
+    console.log(resp.value)
     // dirs.value = await response.value.dirs;
     // histograms.value = await resp.value.hist_json;
   } catch (error) {
@@ -45,35 +45,38 @@ async function fetchRootData() {
 </script>
 <template>
   <!-- {{ resp }} -->
-  <div class="px-8 pt-2 mx-auto lg:px-40 gap-4">
-    <form @submit.prevent="fetchRootData" class="grid items-end gap-6 md:grid-cols-3">
-      <div class="relative">
-        <input v-model="rootFile" type="text" id="input_root_file_path"
-          class="border border-10 border-gray-800 px-2.5 pb-2 pt-4 w-full text text-gray-900 rounded-lg focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+  <div class="px-8 pt-2 mx-auto lg:px-40 gap-2">
+    <form @submit.prevent="fetchRootData" class="grid items-end gap-6 md:grid-cols-5">
+      <div class="relative md:flex md:items-center mb-6"></div>
+      <div class="relative md:flex md:items-center mb-6">
+        <input v-model="run_year" type="number" id="input_run_year"
+          class="border border-gray-800 px-2.5 pb-0 pt-3 w-full text text-gray-900 rounded-sm focus:outline-none focus:ring-0 focus:border-blue-600 peer"
           placeholder=" " />
-        <label for="input_root_file_path"
-          class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-          ROOT File EOS Path
+        <label for="input_run_year"
+          class="absolute text-xs text-gray-500 duration-300 transform -translate-y-2 scale-75 top-3 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+          Run year
         </label>
-        <p id="floating_helper_text" class="mt-2 text-xs text-gray-500">Please provide EOS directory for test</p>
       </div>
-      <div class="relative">
-        <input v-model="rootObjPath" type="text" id="input_root_obj_path"
-          class="border border-10 border-gray-800 px-2.5 pb-2 pt-4 w-full text text-gray-900 rounded-lg focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-          placeholder=" " />
-        <label for="input_root_obj_path"
-          class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-          TDirectory Path Inside ROOT File
+      <div class="relative md:flex md:items-center mb-6">
+        <input v-model="run_number" type="number" id="input_run_number"
+          class="border border-gray-800 px-2 pb-0 pt-3 w-full text text-gray-900 rounded-sm focus:outline-none focus:ring-0 focus:border-blue-600 peer"
+          placeholder=0 />
+        <label for="input_run_number"
+          class="absolute text-xs text-gray-500 duration-300 transform -translate-y-2 scale-75 top-3 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-blue-600 peer-focus:dark:text-blue-500 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+          Run number
         </label>
-        <p id="floating_helper_text" class="mt-2 text-xs text-gray-500">Please provide the TDirectory inside the ROOT file
-        </p>
       </div>
       <div class="relative md:flex md:items-center mb-6">
         <button
           class="shadow bg-purple-500 hover:bg-purple-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded">
           Show
         </button>
+        <div v-if="resp.run_year && resp.run_number" id="histograms">
+          <p>Run year: {{ resp.run_year }}</p>
+          <p>Run number: {{ resp.run_number }}</p>
+        </div>
       </div>
+      <div class="relative mb-6"></div>
 
     </form>
     <!-- ERROR MESSAGE -->
@@ -82,19 +85,26 @@ async function fetchRootData() {
         <span class="font-medium">Warning alert!</span> {{ errorMessage }}
       </div>
     </div>
-    <!-- THERE ARE NO HISTOGRAMS, ONLY DIRECTORIES -->
-    <div v-else-if="resp.dirs" id="dirs">
-      There are only directories: {{ resp.dirs }}
-    </div>
     <!-- SHOW HISTOGRAMS -->
-    <div v-else-if="resp.hist_json" id="histograms">
-      <main class="container px-8 pt-10 mx-auto lg:px-20 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div v-for="( hist, index ) in resp.hist_json">
-          <!-- CHECK AGAIN THE RESPONSE SCHEMA, SEE: backend/api_v1/models.py ResponseRootObj-->
-          <div v-if="hist.name && hist.data" class="px-4 py-6 rounded-md shadow bg-sky-50 hover:bg-slate-300">
-            <p class="mb-1 text-md lg:text-lg">{{ resp.hist_json[0].name }}</p>
-            <div class="object-center w-full h-40 mb-6 rounded" v-bind:id="hist.name">
-              {{ drawHistJson(hist.data, hist.name) }}
+    <div v-else-if="resp.groups" id="histograms">
+      <main class="container px-8 pt-5 mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div v-for="( detector_group, group_index ) in resp.groups" >
+          <p class="center text-sm">{{ detector_group.gname }}</p>
+          <div v-if="detector_group.gname && detector_group.histograms">
+            <div v-for="( hist, hist_index ) in detector_group.histograms" class="rounded-md shadow bg-sky-50 hover:bg-slate-300">
+              <p class="mb-0 text-xs">{{ hist.name }}</p>
+              <div v-if="hist.name && hist.data" >
+                <!-- DOM ID: gname(detector group name) + histogram name + hist index; which gives unique id-->
+                <div class="object-center w-full h-40 mb-6 rounded"
+                  v-bind:id="detector_group.gname + hist.name + hist_index">
+                  {{
+                    drawHistJson(
+                      detector_group.gname + hist.name + hist_index,
+                      hist.data
+                    )
+                  }}
+                </div>
+              </div>
             </div>
           </div>
         </div>

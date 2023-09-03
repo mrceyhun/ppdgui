@@ -1,11 +1,10 @@
 from pydantic import BaseModel
 
 
-class RequestRootObj(BaseModel):
+class RequestHistograms(BaseModel):
     """Post request schema to get ROOT object JSON"""
-    file_path: str | None = None  # Root file path
-    obj_path: str | None = None  # Histogram or object path inside the root file
-    all_hists: bool = False  # Return all histograms in the Directory, no subdirectories of course
+    run_year: int | None = None  # Histograms of a run year, None means recent year
+    run_number: int | None = None  # Histograms of a run number, None means recent run
 
 
 class ResponseHistogram(BaseModel):
@@ -17,7 +16,7 @@ class ResponseHistogram(BaseModel):
 
 class ResponseDetectorGroup(BaseModel):
     """Representation of histogram"""
-    group: str | None = None  # Detector group : L1T, HLT
+    gname: str | None = None  # Detector group name: L1T, HLT
     dataset: str | None = None  # Detector group data root file's dataset name
     root_file: str | None = None  # Detector group root file full EOS path
     histograms: list[ResponseHistogram] | list = []  # Histogram data of the detector group

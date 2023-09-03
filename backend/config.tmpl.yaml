@@ -3,7 +3,7 @@ port: 8081
 base_url: '/ppdgui/api/v1'
 api_v1_prefix: '/ppdgui/api/v1'
 environment: 'prod'
-loglevel: 'info'
+loglevel: 'debug'
 allowed_cors_origins:
   - 'http://_MY_NODE_NAME_'
   - 'http://_MY_NODE_NAME_:32000'
@@ -18,7 +18,7 @@ dqm_meta_store:
   last_n_run_years: 2
   file_suffix_pat: '*DQMIO.root'
 detector_histogram_groups:
-  - group: 'L1T'
+  - gname: 'L1T'
     group_directory: 'JetMET1'
     histograms_tdirectory_pattern: 'DQMData/Run {run_num_int}/L1T/Run summary/L1TObjects/L1TJet/timing'
     description: 'Black&White, learn how to draw colorful'

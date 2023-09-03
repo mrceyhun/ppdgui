@@ -7,22 +7,24 @@ Description : FastAPI main.py
 import logging
 from fastapi import APIRouter, HTTPException
 
-from backend.api_v1.models import RequestRootObj
+from .models import RequestHistograms
 from backend.client import pyroot
+from backend.config import get_config
 
 # ----------------------------------------------------------------------------
 
 # TODO: change prefix
 router = APIRouter()
+logging.basicConfig(level=get_config().loglevel.upper())
 
 
-@router.post("/get-root-hist-or-dirs")
-async def get_root_dirs_or_hist(req: RequestRootObj):
+@router.post("/get-histogram-jsons")
+async def get_root_dirs_or_hist(req: RequestHistograms):
     """Get ROOT histogram in JSON format by providing its file and obj path
     """
-    logging.info("Request:get-root-obj-or-dirs " + str(req))
+    logging.info("Request:get-histogram-jsons " + str(req))
     try:
-        return pyroot.get_root_dirs_or_hist(tfile=req.file_path, tobject=req.obj_path, all_hists=req.all_hists)
+        return pyroot.get_all_histograms(run_year=req.run_year, run_number=req.run_number)
     except Exception as e:
-        logging.error(f"Cannot process request. Incoming=> file{req.file_path}, obj:{req.obj_path} . Error: {str(e)}")
+        logging.error(f"Cannot process request. Incoming request => {str(req)}. Error: {str(e)}")
         raise HTTPException(status_code=404, detail="Cannot read file, err: " + str(e))
