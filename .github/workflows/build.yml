@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - dockerfile: ./Dockerfile-backend
+          - dockerfile: ./docker/Dockerfile-backend
             image: mrceyhun/ppdgui-back
-          - dockerfile: ./Dockerfile-frontend
+          - dockerfile: ./docker/Dockerfile-frontend
             image: mrceyhun/ppdgui-front
     permissions:
       contents: read
