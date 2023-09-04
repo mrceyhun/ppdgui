@@ -41,7 +41,7 @@ class DqmMetaStoreClient:
             config: given Config object to get `dqm_meta_store.meta_store_json_file`
         """
         self.logging = logging.getLogger(__name__)
-        self.logging.setLevel(config.loglevel)
+        self.logging.setLevel(config.loglevel.upper())
         self.store = None
         # TODO: refresh it in each 10 minutes
         with open(config.dqm_meta_store.meta_store_json_file) as f:
@@ -65,11 +65,11 @@ class DqmMetaStoreClient:
         return run_number, my_year
 
     def get_root_files_of_run(self, run_number: int) -> list[str]:
-        """ "Get all ROOT files of a run"""
+        """Get all ROOT files of a run"""
         return [item.root_file for item in self.store.root if item.run == run_number]
 
     def get_det_group_root_file(self, run_number: int, group_directory: str) -> DqmFileMetadata:
-        """ "Get all ROOT files of a detector group for the given run"""
+        """Get all ROOT files of a detector group for the given run"""
         # For a single run there should be single ROOT file
         return [
             group_item
