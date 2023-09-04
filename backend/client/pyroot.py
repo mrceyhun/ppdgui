@@ -26,9 +26,11 @@ def get_all_histograms(run_year: Union[int, None] = 0, run_number: Union[int, No
     """Returns histograms of a specific run number, None returns last run"""
     conf = get_config()
     dqm_store_client = DqmMetaStoreClient(config=conf)
-    # If run number None or 0, get recent run number
+    detector_groups_dirs = [grp.group_directory for grp in conf.detector_histogram_groups]
+
+    # If run number None or 0, get recent run number of the defined detector groups
     if run_number in (0, None):
-        my_run_number, my_run_year = dqm_store_client.last_run_number()
+        my_run_number, my_run_year = dqm_store_client.last_run_number(detector_groups_dirs)
     else:
         my_run_number, my_run_year = run_number, run_year
     logging.debug(f"my_run_number={my_run_number}, my_run_year={my_run_year}")
