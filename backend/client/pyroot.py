@@ -20,6 +20,8 @@ logging.basicConfig(level=get_config().loglevel.upper())
 
 
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
+
+
 def get_all_histograms(run_year: Union[int, None] = 0, run_number: Union[int, None] = 0) -> ResponseHistograms:
     """Returns histograms of a specific run number, None returns last run"""
     conf = get_config()
@@ -47,22 +49,21 @@ def get_all_histograms(run_year: Union[int, None] = 0, run_number: Union[int, No
                 group_name=group_conf.gname,
                 group_directory=group_conf.group_directory,
                 histograms_full_paths=__full_paths,
-                run_number=my_run_number)
+                run_number=my_run_number,
+            )
         )
         logging.debug(f"Detector group histograms list={detector_group_list_resp}")
 
-    return ResponseHistograms(
-        run_year=my_run_year,
-        run_number=my_run_number,
-        groups=detector_group_list_resp
-    )
+    return ResponseHistograms(run_year=my_run_year, run_number=my_run_number, groups=detector_group_list_resp)
 
 
-def util_get_detector_group_histograms(dqm_store_client: DqmMetaStoreClient,
-                                       group_name: str,
-                                       group_directory: str,
-                                       histograms_full_paths: tuple[str],
-                                       run_number: int) -> ResponseDetectorGroup:
+def util_get_detector_group_histograms(
+    dqm_store_client: DqmMetaStoreClient,
+    group_name: str,
+    group_directory: str,
+    histograms_full_paths: tuple[str],
+    run_number: int,
+) -> ResponseDetectorGroup:
     """Returns ResponseDetectorGroup which includes detector group's histograms
 
     Args:
@@ -77,8 +78,9 @@ def util_get_detector_group_histograms(dqm_store_client: DqmMetaStoreClient,
     logging.debug(f"root_file_meta={root_file_meta}")
 
     # Histogram jsons of detector group
-    group_histograms = util_get_histogram_jsons(tfile=root_file_meta.root_file,
-                                                histograms_full_paths=histograms_full_paths)
+    group_histograms = util_get_histogram_jsons(
+        tfile=root_file_meta.root_file, histograms_full_paths=histograms_full_paths
+    )
 
     return ResponseDetectorGroup(
         gname=group_name,
@@ -108,14 +110,19 @@ def util_get_histogram_jsons(tfile: str, histograms_full_paths: tuple[str] = Non
                 assumed_hist_class = assumed_hist.ClassName()
                 if assumed_hist_class in WorkableHistogramClasses:
                     # Histogram object path is provided, so return its JSON
-                    hist_resp = ResponseHistogram(name=assumed_hist.GetName(),
-                                                  type=assumed_hist_class,
-                                                  data=str(TBufferJSON.ToJSON(assumed_hist)))
+                    hist_resp = ResponseHistogram(
+                        name=assumed_hist.GetName(),
+                        type=assumed_hist_class,
+                        data=str(TBufferJSON.ToJSON(assumed_hist)),
+                    )
                     hist_jsons.append(hist_resp)
                 else:
-                    logging.warning(f"Given object is not a histogram. "
-                                    f"=> file {tfile}, obj: {obj}, obj class: {assumed_hist_class}")
+                    logging.warning(
+                        f"Given object is not a histogram. "
+                        f"=> file {tfile}, obj: {obj}, obj class: {assumed_hist_class}"
+                    )
             else:
-                logging.warning(f"Given object is a friendly Zombie with full of enjoyment. "
-                                f"=> file: {tfile}, obj path: {obj}")
+                logging.warning(
+                    f"Given object is a friendly Zombie with full of enjoyment. " f"=> file: {tfile}, obj path: {obj}"
+                )
     return hist_jsons
