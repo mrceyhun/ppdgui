@@ -46,9 +46,12 @@ export >/etc/environment
 (
     crontab -l 2>/dev/null
     echo "00 3 * * * . /etc/environment; $WDIR/backend/kerberos.sh /etc/secrets/keytab >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
-    echo "*/10 * * * * . /etc/environment; python $WDIR/backend/dqm_meta/eos_grinder.py >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
+    echo "*/10 * * * * . /etc/environment; python -c 'from backend.dqm_meta.eos_grinder import run; run()' >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
 ) | crontab -
 
+# Fetch and format DQM EOS metadata at the start
+python -c 'from backend.dqm_meta.eos_grinder import run; run()'
+
 # START FastAPI
-echo "Happy ending, starting FastAPI..."
+echo "Successful initializaion, starting FastAPI..."
 python backend/main.py
