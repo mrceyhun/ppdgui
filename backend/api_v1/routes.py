@@ -20,8 +20,7 @@ logging.basicConfig(level=get_config().loglevel.upper())
 
 @router.post("/get-histogram-jsons")
 async def get_root_dirs_or_hist(req: RequestHistograms):
-    """Get ROOT histogram in JSON format by providing its file and obj path
-    """
+    """Get ROOT histogram in JSON format by providing its file and obj path"""
     logging.info("Request:get-histogram-jsons " + str(req))
     try:
         return pyroot.get_all_histograms(run_year=req.run_year, run_number=req.run_number)

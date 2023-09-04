@@ -33,7 +33,7 @@ detector_histogram_groups:
         type: 'TH2F'
       - name: 'jet_eta_phi_bx_plus2'
         type: 'TH2F'
-  - group: 'HLT'
+  - gname: 'HLT'
     group_directory: 'HLTPhysics'
     histograms_tdirectory_pattern: 'DQMData/Run {run_num_int}/HLT/Run summary/JME/Jets/AK4/PF/HLT_PFJet260'
     description: 'Axis scale is not correct, learn how to do draw it correctly'
