@@ -12,7 +12,7 @@ const isEnvDev = import.meta.env.DEV;
 // frontend/run.sh will replace it. Read it for more details.
 
 if (isEnvDev) {
-    axios.defaults.baseURL = "http://localhost:8081/ppdgui/api";
+    axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
 } else {
     axios.defaults.baseURL = "VITE_BACKEND_API_BASE_URL";
 }

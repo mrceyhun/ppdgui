@@ -178,7 +178,10 @@ coverage
 .vscode/*
 frontend/.vscode
 backend/.vscode
-backend/tests/data/tmp
+backend/tests/DQMGUI_data
+backend/tests/tmp
+dqm_meta.json
+dqm_root_files.txt
 */*.code-workspace
 !.vscode/extensions.json
 *.suo

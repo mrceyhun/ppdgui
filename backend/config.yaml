@@ -9,6 +9,7 @@ allowed_cors_origins:
   - 'http://localhost:80'
   - 'http://localhost'
   - 'http://localhost:5173'
+  - 'http://ceyhun-vm.cern.ch:8080'
 dqm_meta_store:
   base_dqm_eos_dir: '/eos/cms/store/group/comm_dqm/DQMGUI_data'
   find_tmp_results_file: 'dqm_root_files.txt'

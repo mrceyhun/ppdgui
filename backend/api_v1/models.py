@@ -30,4 +30,4 @@ class ResponseHistograms(BaseModel):
 
     run_year: int | None = None  # Run year
     run_number: int | None = None  # Run number
-    groups: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list
+    detector_histograms: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list

@@ -6,7 +6,6 @@ Description : PyROOT utils
 """
 import functools
 import logging
-from typing import Union
 
 from ROOT import TFile, TBufferJSON
 
@@ -22,17 +21,22 @@ logging.basicConfig(level=get_config().loglevel.upper())
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 
 
-def get_all_histograms(run_year: Union[int, None] = 0, run_number: Union[int, None] = 0) -> ResponseHistograms:
-    """Returns histograms of a specific run number, None returns last run"""
+def get_all_histograms(run_year: int = 0, run_number: int = 0) -> ResponseHistograms:
+    """Returns histograms of a specific run number of a run year
+
+    run number 0 and run year 0 returns the last run
+    """
     conf = get_config()
     dqm_store_client = DqmMetaStoreClient(config=conf)
     detector_groups_dirs = [grp.group_directory for grp in conf.detector_histogram_groups]
 
-    # If run number None or 0, get recent run number of the defined detector groups
-    if run_number in (0, None):
+    # If both run number and run year are not defined, return latest run
+    if not (run_year or run_number):
         my_run_number, my_run_year = dqm_store_client.last_run_number(detector_groups_dirs)
-    else:
+    elif run_year and run_number:
         my_run_number, my_run_year = run_number, run_year
+    else:
+        raise
     logging.debug(f"my_run_number={my_run_number}, my_run_year={my_run_year}")
 
     detector_group_list_resp = []
@@ -56,7 +60,9 @@ def get_all_histograms(run_year: Union[int, None] = 0, run_number: Union[int, No
         )
         logging.debug(f"Detector group histograms list={detector_group_list_resp}")
 
-    return ResponseHistograms(run_year=my_run_year, run_number=my_run_number, groups=detector_group_list_resp)
+    return ResponseHistograms(
+        run_year=my_run_year, run_number=my_run_number, detector_histograms=detector_group_list_resp
+    )
 
 
 def util_get_detector_group_histograms(
