@@ -1,12 +1,30 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import axios from 'axios';
 import { drawHistJson } from '../utils/jsroot'
 
 const errorMessage = ref('')
 const input_run_year = ref(0)
 const input_run_number = ref(0)
-const state = ref({ run_number: 0, run_year: 0, detector_histograms: [] })
+
+const user_input = reactive({
+  run_year: 0,
+  run_number: 0
+});
+
+const state = ref({
+  run_number: 0,
+  run_year: 0,
+  detector_histograms: []
+})
+
+const hasHistogams = computed(() => {
+  return state.detector_histograms.length > 0 ? true : false
+})
+
+const hasError = computed(() => {
+  return errorMessage ? true : false
+})
 
 async function fetchRootData() {
   state.value = NaN
@@ -67,13 +85,12 @@ async function fetchRootData() {
       <div class="relative mb-6"></div>
     </form>
     <!-- ERROR MESSAGE -->
-    <div v-if="errorMessage" id="dirs">
-      <div class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50  " role="alert">
-        <span class="font-medium">Warning alert!</span> {{ errorMessage }}
-      </div>
+
+    <div v-if="hasError" class="p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50  " role="alert">
+      <span class="font-medium">Warning alert!</span> {{ errorMessage }}
     </div>
     <!-- SHOW HISTOGRAMS -->
-    <div v-else-if="state.detector_histograms" id="histograms">
+    <div v-if="hasHistogams" id="histograms">
       <main class="container px-8 pt-5 mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
         <div v-for="( detector_group, group_index ) in state.detector_histograms">
           <p class="center text-sm">{{ detector_group.gname }}</p>

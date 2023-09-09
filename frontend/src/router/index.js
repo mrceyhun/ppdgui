@@ -11,6 +11,14 @@ const router = createRouter({
         requiresAuth: true
       }
     },
+    {
+      path: "/test",
+      name: "Home",
+      component: () => import('../views/TestView.vue'),
+      meta: {
+        requiresAuth: true
+      }
+    },
   ]
 })
 router.beforeEach((to, from, next) => {
