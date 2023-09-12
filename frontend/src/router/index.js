@@ -1,29 +1,31 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from "vue-router";
+import Home from "@/views/HomeView.vue";
+
+const routes = [
+  {
+    meta: {
+      title: "PPDGUI",
+    },
+    path: "/",
+    name: "dashboard",
+    component: Home,
+  },
+  {
+    meta: {
+      title: "Forms",
+    },
+    path: "/forms",
+    name: "forms",
+    component: Home,
+  },
+];
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      name: "Home",
-      component: () => import('../views/HomeView.vue'),
-      meta: {
-        requiresAuth: true
-      }
-    },
-    {
-      path: "/test",
-      name: "Home",
-      component: () => import('../views/TestView.vue'),
-      meta: {
-        requiresAuth: true
-      }
-    },
-  ]
-})
-router.beforeEach((to, from, next) => {
-  next()
-})
+  history: createWebHashHistory(),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    return savedPosition || { top: 0 };
+  },
+});
 
-
-export default router
+export default router;

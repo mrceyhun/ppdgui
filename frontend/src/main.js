@@ -1,25 +1,56 @@
-import { createApp } from 'vue';
-import './style.css';
-import App from './App.vue';
-import axios from 'axios';
-import router from './router';
+import { createApp } from "vue";
+import { createPinia } from "pinia";
 
-const app = createApp(App);
+import App from "./App.vue";
+import router from "./router";
+import axios from "axios";
+import { useMainRunStore } from "@/stores/mainRun.js";
+import { useStyleStore } from "@/stores/style.js";
+import { darkModeKey, styleKey } from "@/config.js";
+
+import "./css/main.css";
+
+/* Set axios base url */
 const isEnvDev = import.meta.env.DEV;
-
-// axios configs
-// Required environment variable for backend API, should start with VITE_
-// frontend/run.sh will replace it. Read it for more details.
-
+console.log("Env:" + isEnvDev);
 if (isEnvDev) {
-    axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
+  axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
+  console.log("Env:" + isEnvDev);
 } else {
-    axios.defaults.baseURL = "VITE_BACKEND_API_BASE_URL";
+  axios.defaults.baseURL = "VITE_BACKEND_API_BASE_URL";
 }
-app.axios = axios;
-app.$http = axios;
-app.config.globalProperties.axios = axios;
-app.config.globalProperties.$http = axios;
 
-app.use(router);
-app.mount('#app')
+/* Init Pinia */
+const pinia = createPinia();
+
+/* Create Vue app */
+createApp(App).use(router).use(pinia).mount("#app");
+
+/* Init Pinia stores */
+const styleStore = useStyleStore(pinia);
+const mainRunStore = useMainRunStore(pinia);
+
+/* App style */
+styleStore.setStyle(localStorage[styleKey] ?? "basic");
+
+/* Get histograms */
+mainRunStore.getRunHistorgrams(2023, 370775);
+
+/* Dark mode */
+if (
+  (!localStorage[darkModeKey] &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches) ||
+  localStorage[darkModeKey] === "1"
+) {
+  styleStore.setDarkMode(true);
+}
+
+/* Default title tag */
+const defaultDocumentTitle = "Home";
+
+/* Set document title from route meta */
+router.afterEach((to) => {
+  document.title = to.meta?.title
+    ? `${to.meta.title} — ${defaultDocumentTitle}`
+    : defaultDocumentTitle;
+});
