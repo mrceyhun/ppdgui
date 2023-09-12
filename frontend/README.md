@@ -13,4 +13,6 @@ http://localhost:5173/
 ```
 
 ## Refs:
-https://blog.logrocket.com/complex-vue-3-state-management-pinia/
+
+- https://blog.logrocket.com/complex-vue-3-state-management-pinia/
+- https://github.com/justboil/admin-one-vue-tailwind

@@ -1,40 +1,48 @@
 <script setup>
-import { RouterLink } from 'vue-router';
-import { ref } from 'vue';
+import { ref } from "vue";
+import { mdiClose, mdiDotsVertical } from "@mdi/js";
+import { containerMaxW } from "@/config.js";
+import BaseIcon from "@/components/BaseIcon.vue";
+import NavBarMenuList from "@/components/NavBarMenuList.vue";
+import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 
-let mobileMenu = ref(false)
+defineProps({
+  menu: {
+    type: Array,
+    required: true,
+  },
+});
 
+const emit = defineEmits(["menu-click"]);
+
+const menuClick = (event, item) => {
+  emit("menu-click", event, item);
+};
+
+const isMenuNavBarActive = ref(false);
 </script>
 
 <template>
-  <header class="py-2 text-center bg-gray-900 ">
-    <nav class="container px-6 mx-auto md:flex md:justify-between md:items-center text-white">
-      <div class="flex items-center justify-between">
-        <router-link to="/" class="text-xl font-bold text-white md:text-2xl hover:text-blue-400">
-          PPD GUI
-        </router-link>
-        <!-- Mobile menu button -->
-        <div @click="mobileMenu = !mobileMenu" class="flex md:hidden">
-          <button type="button" class="text-white hover:text-gray-400 focus:outline-none focus:text-gray-400">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 fill-current">
-              <path fill-rule="evenodd"
-                d="M4 5h16a1 1 0 0 1 0 2H4a1 1 0 1 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2zm0 6h16a1 1 0 0 1 0 2H4a1 1 0 0 1 0-2z">
-              </path>
-            </svg>
-          </button>
-        </div>
+  <nav class="top-0 inset-x-0 fixed bg-gray-50 h-14 z-30 transition-position w-screen lg:w-auto dark:bg-slate-800">
+    <div class="flex lg:items-stretch" :class="containerMaxW">
+      <div class="flex flex-1 items-stretch h-14">
+        <slot />
+      </div>
+      <!-- Mobile menu -->
+      <div class="flex-none items-stretch flex h-14 lg:hidden">
+        <NavBarItemPlain @click.prevent="isMenuNavBarActive = !isMenuNavBarActive">
+          <BaseIcon :path="isMenuNavBarActive ? mdiClose : mdiDotsVertical" size="24" />
+        </NavBarItemPlain>
       </div>
 
-      <!-- Mobile Menu open: "block", Menu closed: "hidden" -->
-      <ul :class="mobileMenu ? 'flex' : 'hidden'" class="
-  flex-col mt-8 space-y-4 md:flex md:space-y-0 md:flex-row md:items-center md:space-x-10 md:mt-0">
-        <li class="text-sm font-bold text-white hover:text-blue-400">
-          <RouterLink to="/">Home</RouterLink>
-        </li>
-        <li class="text-sm font-bold text-white hover:text-blue-400">
-          <a href="#">Contact Us</a>
-        </li>
-      </ul>
-    </nav>
-  </header>
+      <div
+        class="max-h-screen-menu overflow-y-auto lg:overflow-visible absolute w-screen top-14 left-0 bg-gray-50 shadow-lg lg:w-auto lg:flex lg:static lg:shadow-none dark:bg-slate-800"
+        :class="[isMenuNavBarActive ? 'block' : 'hidden']">
+
+        <NavBarMenuList :menu="menu" @menu-click="menuClick" />
+
+      </div>
+
+    </div>
+  </nav>
 </template>
