@@ -20,6 +20,7 @@ const menuClick = (event, item) => {
 };
 
 const isMenuNavBarActive = ref(false);
+
 </script>
 
 <template>
