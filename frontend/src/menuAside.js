@@ -1,31 +1,38 @@
-import {
-  mdiMonitor,
-  mdiGithub,
-  mdiViewList,
-} from "@mdi/js";
+import { mdiMonitor, mdiGithub, mdiViewList, mdiCounter } from "@mdi/js";
 
-export default [
-  {
+export default {
+  run: {
     to: "/",
-    icon: mdiMonitor,
-    label: "Dashboard",
+    icon: mdiCounter,
+    label: "-RunNumber-", // will be replaced in HomeView
   },
-  {
-    label: "Dropdown",
-    icon: mdiViewList,
-    menu: [
-      {
-        label: "Item One",
-      },
-      {
-        label: "Item Two",
-      },
-    ],
-  },
-  {
-    href: "https://github.com/mrceyhun/ppdgui",
-    label: "GitHub",
-    icon: mdiGithub,
-    target: "_blank",
-  },
-];
+  menu: [
+    {}, // Run will be first index: 0
+    {
+      to: "/",
+      icon: mdiMonitor,
+      label: "Dashboard",
+    },
+    {
+      label: "Dropdown",
+      icon: mdiViewList,
+      menu: [
+        {
+          labelFor: "runNumber",
+          labelText: "runNumber",
+          inputType: "number",
+          inputId: "runNumber",
+          inputPlaceholder: "3",
+          maxlength: "9",
+          isAsideInput: true,
+        },
+      ],
+    },
+    {
+      href: "https://github.com/mrceyhun/ppdgui",
+      label: "GitHub",
+      icon: mdiGithub,
+      target: "_blank",
+    },
+  ],
+};

@@ -1,16 +1,19 @@
 <script setup>
-import AsideMenuLayer from "@/components/AsideMenuLayer.vue";
+import { mdiClose, mdiHome, mdiTagSearchOutline, mdiCounter, mdiGithub } from "@mdi/js";
+import AsideMenuItem from "@/components/AsideMenuItem.vue";
+import AsideMenuRunInput from "@/components/AsideMenuRunInput.vue";
+import BaseIcon from "@/components/BaseIcon.vue";
+import { useStyleStore } from "@/stores/style.js";
+import { useMainRunStore } from "@/stores/mainRun.js";
 
 defineProps({
-  menu: {
-    type: Array,
-    required: true,
-  },
   isAsideMobileExpanded: Boolean,
   isAsideLgActive: Boolean,
 });
 
 const emit = defineEmits(["menu-click", "aside-lg-close-click"]);
+const mainRunStore = useMainRunStore();
+const styleStore = useStyleStore();
 
 const menuClick = (event, item) => {
   emit("menu-click", event, item);
@@ -22,12 +25,48 @@ const asideLgCloseClick = (event) => {
 </script>
 
 <template>
-  <AsideMenuLayer
-    :menu="menu"
+  <aside id="aside" class="lg:py-2 lg:pl-2 w-60 fixed flex z-30 top-0 h-screen transition-position overflow-hidden"
     :class="[
       isAsideMobileExpanded ? 'left-0' : '-left-60 lg:left-0',
       { 'lg:hidden xl:flex': !isAsideLgActive },
-    ]"
-    @menu-click="menuClick"
-    @aside-lg-close-click="asideLgCloseClick" />
+    ]">
+    <div :class="styleStore.asideStyle" class="lg:rounded-2xl flex-1 flex flex-col overflow-hidden dark:bg-slate-900">
+      <div :class="styleStore.asideBrandStyle"
+        class="flex flex-row h-14 items-center justify-between dark:bg-slate-900">
+        <div class="text-center flex-1 lg:text-center lg:pl-6 xl:text-center xl:pl-0">
+          <a href="/"> PPD
+            <BaseIcon
+              :path="mdiHome"
+              class="flex-none"
+              w="w-16"
+              :size="18" /> GUI
+          </a>
+        </div>
+        <button class="hidden lg:inline-block xl:hidden p-3" @click.prevent="asideLgCloseClick">
+          <BaseIcon :path="mdiClose" />
+        </button>
+      </div>
+      <div
+        :class="styleStore.darkMode ? 'aside-scrollbars-[slate]' : styleStore.asideScrollbarsStyle"
+        class="flex-1 overflow-y-auto overflow-x-hidden">
+        <ul>
+          <AsideMenuItem
+            key="aside-item-dashboard"
+            :item="{ 'icon': mdiCounter, 'label': mainRunStore.runNumber, 'color': 'info' }"
+            @menu-click="menuClick" />
+
+          <AsideMenuItem
+            key="aside-item-github"
+            :item="{ 'href': 'https://github.com/mrceyhun/ppdgui', 'icon': mdiGithub, 'label': 'GitHub', 'target': '_blank' }"
+            @menu-click="menuClick" />
+
+          <AsideMenuRunInput
+            is-aside-input
+            key="aside-item-input-run"
+            :icon="mdiTagSearchOutline"
+            :item={} />
+        </ul>
+      </div>
+    </div>
+  </aside>
 </template>

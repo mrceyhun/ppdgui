@@ -27,15 +27,15 @@ router.beforeEach(() => {
   <BaseDivider nav-bar></BaseDivider>
   <div class="group w-full block gap-2 h-8">
     <span class="dark:dark:border-slate-700 text-xs lg:text-sm">
-      <label
+      <span
         class="border border-solid text-xs lg:text-sm bg-pink-300 dark:bg-pink-500 via-pink-900 font-bold leading-none tracking-tight px-2 py-1">
         {{ groupName }}
-      </label>
+      </span>
       : {{ dataset }}
     </span>
-    <label class="opacity-0 group-hover:opacity-100 text-sky-500 w-1/3 text-xs break-all">
+    <span class="opacity-0 group-hover:opacity-100 text-sky-500 w-1/3 text-xs break-all">
       {{ rootFile }}
-    </label>
+    </span>
   </div>
   <div class="w-full grid grid-cols-1 gap-1 lg:grid-cols-6 mb-1 border-solid border-2">
     <RootHistogramWidget

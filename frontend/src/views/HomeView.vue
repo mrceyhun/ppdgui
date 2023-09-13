@@ -3,7 +3,6 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStyleStore } from "@/stores/style.js";
 import MainRunLayout from "@/layouts/MainRunLayout.vue";
-import menuAside from "@/menuAside.js";
 import menuNavBar from "@/menuNavBar.js";
 import NavBar from "@/components/NavBar.vue";
 import AsideMenu from "@/components/AsideMenu.vue";
@@ -14,6 +13,7 @@ const styleStore = useStyleStore();
 const router = useRouter();
 const isAsideMobileExpanded = ref(false);
 const isAsideLgActive = ref(false);
+// const menuAsideObj = ref(menuAside)
 
 router.beforeEach(() => {
   isAsideMobileExpanded.value = false;
@@ -25,7 +25,6 @@ const menuClick = (event, item) => {
     styleStore.setDarkMode();
   }
 };
-
 </script>
 
 <template>
@@ -36,8 +35,11 @@ const menuClick = (event, item) => {
       <NavBar :menu="menuNavBar" :class="[layoutAsidePadding, { 'ml-60 lg:ml-0': isAsideMobileExpanded },]"
         @menu-click="menuClick" />
 
-      <AsideMenu :is-aside-mobile-expanded="isAsideMobileExpanded" :is-aside-lg-active="isAsideLgActive" :menu="menuAside"
-        @menu-click="menuClick" @aside-lg-close-click="isAsideLgActive = false" />
+      <AsideMenu
+        :is-aside-mobile-expanded="isAsideMobileExpanded"
+        :is-aside-lg-active="isAsideLgActive"
+        @menu-click="menuClick"
+        @aside-lg-close-click="isAsideLgActive = false" />
 
       <!-- Main run layout contains only single RUN results -->
       <MainRunLayout />

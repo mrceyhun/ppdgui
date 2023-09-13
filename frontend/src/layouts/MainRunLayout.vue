@@ -19,7 +19,6 @@ const mainRunStore = useMainRunStore();
 </script>
 
 <template>
-  <!-- <span>{{ mainRunStore.runYear }} - {{ mainRunStore.runNumber }}</span> -->
   <section class="p-0 px-0" :class="containerMaxW">
 
     <RootHistogramGroupRow

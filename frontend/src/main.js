@@ -14,7 +14,8 @@ import "./css/main.css";
 const isEnvDev = import.meta.env.DEV;
 console.log("Env:" + isEnvDev);
 if (isEnvDev) {
-  axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
+  axios.defaults.baseURL =
+    "http://ceyhun-k8s-lbva4duqns2g-node-0:32001/ppdgui/api";
   console.log("Env:" + isEnvDev);
 } else {
   axios.defaults.baseURL = "VITE_BACKEND_API_BASE_URL";
@@ -27,14 +28,14 @@ const pinia = createPinia();
 createApp(App).use(router).use(pinia).mount("#app");
 
 /* Init Pinia stores */
-const styleStore = useStyleStore(pinia);
 const mainRunStore = useMainRunStore(pinia);
+const styleStore = useStyleStore(pinia);
 
 /* App style */
 styleStore.setStyle(localStorage[styleKey] ?? "basic");
 
 /* Get histograms */
-mainRunStore.getRunHistorgrams(2023, 370775);
+// mainRunStore.getRunHistorgrams(2023, mainRunStore.runNumber);
 
 /* Dark mode */
 if (

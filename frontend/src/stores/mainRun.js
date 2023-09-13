@@ -8,6 +8,8 @@ export const useMainRunStore = defineStore("mainRun", {
     runYear: 0,
     detectorHistograms: [],
     error: "",
+    inputRunYear: 2023,
+    inputRunNumber: 370775,
   }),
 
   actions: {
@@ -19,13 +21,14 @@ export const useMainRunStore = defineStore("mainRun", {
         });
         const data = await r.data;
         /* r.data: { run_number: 0, run_year: 0, detector_histograms: [] } */
-        console.log(data);
         this.detectorHistograms = await data.detector_histograms;
         this.runNumber = data.run_number;
         this.runYear = data.run_year;
 
-        console.log("Response: " + JSON.stringify(this.detectorHistograms));
+        // TODO: on debug use console.log("Response: " + JSON.stringify(this.detectorHistograms));
+        return true;
       } catch (e) {
+        alert("No histograms found with this Run Number");
         if (e.response) {
           console.log("Error", e.response.data.detail);
           this.error = e.response.data.detail;
@@ -36,6 +39,17 @@ export const useMainRunStore = defineStore("mainRun", {
           console.log("Error", e.message);
         }
       }
+      return false;
+    },
+    async updateRunNumber(year, run) {
+      const success = await this.getRunHistorgrams(year, run);
+
+      // If successfull, update run number and return true
+      if (success) {
+        this.inputRunYear = year;
+        this.inputRunNumber = run;
+      }
+      return success;
     },
   },
 });
