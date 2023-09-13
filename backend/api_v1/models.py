@@ -1,10 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
+Description : Models of FastApi client
+"""
+
 from pydantic import BaseModel
 
 
 class RequestHistograms(BaseModel):
     """Post request schema to get ROOT object JSON"""
 
-    run_year: int | None = None  # Histograms of a run year, None means recent year
     run_number: int | None = None  # Histograms of a run number, None means recent run
 
 

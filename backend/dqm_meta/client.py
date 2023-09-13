@@ -4,9 +4,10 @@
 Author      : Ceyhun Uzunoglu <ceyhunuzngl AT gmail [DOT] com>
 Description : Client to search DQM GUI root files, directories, run numbers and datasets
 """
-from pydantic import BaseModel, RootModel
-from backend.config import Config
 import logging
+from pydantic import BaseModel, RootModel
+
+from backend.config import Config
 
 
 class DqmFileMetadata(BaseModel):
@@ -47,26 +48,37 @@ class DqmMetaStoreClient:
         with open(config.dqm_meta_store.meta_store_json_file) as f:
             self.store = DqmMetaStore.model_validate_json(f.read())
 
-    def last_run_number(self, detector_group_directories: list[str], year: int | None = None) -> (int, int):
-        """Get recent common Run number for the given detector groups and for the given year or recent year by default"""
-        # If year is not given, set as last year
-        my_year = year if year else max([item.year for item in self.store.root])
+    def last_run_number(self, detector_group_directories: list[str]) -> int:
+        """Get recent common Run number for the given detector groups
 
-        run_numbers = set()  # holds recent run numbers of detector groups
+        Get each detector groups' last run and set the max run as their overall minimum run number,
+        because "a last run" should include all the histograms of the detector groups.
+
+        In short: MIN( max(runs that have HLT root files), max(runs that have L1T root files), ...)
+        """
+        max_group_runs = set()  # holds latest run number of detector groups
         for group_dir in detector_group_directories:
-            tmp_run_number = max(
-                [item.run for item in self.store.root if (item.year == my_year and item.group_directory == group_dir)]
+            max_group_runs.add(
+                # max run number that has this detector group's root files
+                max([item.run for item in self.store.root if (item.group_directory == group_dir)])
             )
-            run_numbers.add(tmp_run_number)
-        self.logging.info(f"Detector group last runs list{list(run_numbers)}")
-        # Most probablt minimum run number will be common for all the detector groups
-        run_number = min(run_numbers)
 
-        return run_number, my_year
+        self.logging.info(f"Detector group last runs list: {list(max_group_runs)}")
+
+        # !ASSUMPTION! Most probably minimum run number will have histograms for all the detector groups
+        return min(max_group_runs)
 
     def get_root_files_of_run(self, run_number: int) -> list[str]:
         """Get all ROOT files of a run"""
         return [item.root_file for item in self.store.root if item.run == run_number]
+
+    def get_year_of_run(self, run_number: int) -> int:
+        """Get year of given run number"""
+        for item in self.store.root:
+            if item.run == run_number:
+                return item.year  # return in firs occurance
+
+        return 0  # on fail
 
     def get_det_group_root_file(self, run_number: int, group_directory: str) -> DqmFileMetadata:
         """Get all ROOT files of a detector group for the given run"""
