@@ -13,7 +13,6 @@ const styleStore = useStyleStore();
 const router = useRouter();
 const isAsideMobileExpanded = ref(false);
 const isAsideLgActive = ref(false);
-// const menuAsideObj = ref(menuAside)
 
 router.beforeEach(() => {
   isAsideMobileExpanded.value = false;

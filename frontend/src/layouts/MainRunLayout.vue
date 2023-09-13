@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { containerMaxW } from "@/config.js";
 import RootHistogramGroupRow from "@/components/RootHistogramGroupRow.vue";
@@ -16,20 +17,22 @@ router.beforeEach(() => {
 
 const mainRunStore = useMainRunStore();
 
+/* Nested obj reactivity is not working, so we use v-if="hasUpdated" */
+const { runYear, runNumber, hasUpdated, detectorHistograms } = storeToRefs(mainRunStore)
 </script>
 
 <template>
   <section class="p-0 px-0" :class="containerMaxW">
 
-    <RootHistogramGroupRow
-      v-for="(detectorGroup, index) in mainRunStore.detectorHistograms"
+    <RootHistogramGroupRow v-if="hasUpdated"
+      v-for="(detectorGroup, index) in detectorHistograms"
       :key="index"
       :histograms="detectorGroup.histograms"
       :group-name="detectorGroup.gname"
       :dataset="detectorGroup.dataset"
       :root-file="detectorGroup.root_file"
-      :run-year="mainRunStore.runYear"
-      :run-number="mainRunStore.runNumber" />
+      :run-year="runYear"
+      :run-number="runNumber" />
 
   </section>
 </template>

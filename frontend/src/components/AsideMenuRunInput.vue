@@ -33,16 +33,16 @@ const menuClick = (event) => {
   emit("menu-click", event, props.item);
 };
 
+/* Input value with default mainRun store input run number */
 const inputRun = ref(mainRunStore.inputRunNumber)
 
 /* Initial get of histograms */
-mainRunStore.updateRunNumber(2023, parseInt(inputRun.value));
+mainRunStore.updateRunNumber(parseInt(inputRun.value));
 
 /* On input hit enter */
-async function submit() {
-  await mainRunStore.updateRunNumber(2023, parseInt(inputRun.value));
+function submit() {
+  mainRunStore.updateRunNumber(parseInt(inputRun.value));
 }
-
 </script>
 
 <template>
