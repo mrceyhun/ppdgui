@@ -17,11 +17,13 @@ print(CONFIG.model_dump())
 
 # Production: https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/
 app = FastAPI(title="FastAPI")
-app.add_middleware(CORSMiddleware,
-                   allow_origins=CONFIG.allowed_cors_origins,
-                   allow_credentials=True,
-                   allow_methods=["*"],
-                   allow_headers=["*"], )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CONFIG.allowed_cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Add router
 app.include_router(router=router, prefix=CONFIG.api_v1_prefix, tags=["v1"])
@@ -38,8 +40,10 @@ async def version():
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app",
-                host=CONFIG.host,
-                port=CONFIG.port,
-                log_level=CONFIG.loglevel,
-                reload=True if CONFIG.environment == 'dev' else False)
+    uvicorn.run(
+        "main:app",
+        host=CONFIG.host,
+        port=CONFIG.port,
+        log_level=CONFIG.loglevel,
+        reload=True if CONFIG.environment == "dev" else False,
+    )

@@ -14,6 +14,7 @@ import "./css/main.css";
 const isEnvDev = import.meta.env.DEV;
 console.log("Env:" + isEnvDev);
 if (isEnvDev) {
+  // axios.defaults.baseURL = "http://ceyhun-k8s-lbva4duqns2g-node-0:32001/ppdgui/api";
   axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
   console.log("Env:" + isEnvDev);
 } else {

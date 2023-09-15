@@ -23,7 +23,7 @@ logging.basicConfig(level=get_config().loglevel.upper())
 async def get_root_dirs_or_hist(req: Union[RequestHistograms, None]):
     """Get ROOT histogram in JSON format by providing run year and run number
 
-    Default 0 values of run number or no body request returns latest run.
+    Default 0 values of run number or nobody request returns the latest run.
     """
     logging.info("Request:get-histogram-jsons " + str(req))
     try:

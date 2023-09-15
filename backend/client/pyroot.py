@@ -11,7 +11,7 @@ from ROOT import TFile, TBufferJSON
 
 from backend.api_v1.models import ResponseHistograms, ResponseHistogram, ResponseDetectorGroup
 from backend.config import get_config
-from backend.dqm_meta.client import DqmMetaStoreClient
+from backend.dqm_meta.client import DqmMetadataClient
 
 # Allowed histogram classes
 WorkableHistogramClasses = ("TH1F", "TH2F")
@@ -27,8 +27,8 @@ def get_all_histograms(run_number: int = 0) -> ResponseHistograms:
     run number 0 returns the last run
     """
     conf = get_config()
-    dqm_store_client = DqmMetaStoreClient(config=conf)
-    detector_groups_dirs = [grp.group_directory for grp in conf.detector_histogram_groups]
+    dqm_store_client = DqmMetadataClient(config=conf)
+    detector_groups_dirs = [grp.group_directory for grp in conf.histograms_config]
 
     # If both run number is not defined, return latest run
     if run_number <= 0:
@@ -40,7 +40,7 @@ def get_all_histograms(run_number: int = 0) -> ResponseHistograms:
 
     detector_group_list_resp, my_run_year = [], 0
     # Iterate items of "ConfigDetectorGroup"
-    for group_conf in conf.detector_histogram_groups:
+    for group_conf in conf.histograms_config:
         # histograms_tdirectory_pattern includes formatted string patterns to format it
         hists_tdirectory = group_conf.histograms_tdirectory_pattern.format(**{"run_num_int": my_run_number})
         logging.debug(f"Detector group histograms TDirectory={hists_tdirectory}")
@@ -67,7 +67,7 @@ def get_all_histograms(run_number: int = 0) -> ResponseHistograms:
 
 
 def util_get_detector_group_histograms(
-    dqm_store_client: DqmMetaStoreClient,
+    dqm_store_client: DqmMetadataClient,
     group_name: str,
     group_directory: str,
     histograms_full_paths: tuple[str],
@@ -102,7 +102,7 @@ def util_get_detector_group_histograms(
     )
 
 
-@functools.lru_cache(maxsize=1000, typed=False)  # Cache responses, params are hashabel so it works
+@functools.lru_cache(maxsize=1000, typed=False)  # Caches responses, params are hashabel so it works
 def util_get_histogram_jsons(tfile: str, histograms_full_paths: tuple[str] = None) -> list[ResponseHistogram]:
     """Returns list of histogram JSONs of requested root objects, used mostly for single Detector Group's histograms
 

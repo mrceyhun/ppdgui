@@ -1,0 +1,22 @@
+# Server configs, check run.sh
+host: '0.0.0.0'
+port: 8081
+base_url: '/ppdgui/api/v1'
+api_v1_prefix: '/ppdgui/api/v1'
+environment: 'prod'
+loglevel: 'debug'
+allowed_cors_origins:
+  - 'http://_MY_NODE_NAME_'
+  - 'http://_MY_NODE_NAME_:32000'
+  - 'http://localhost'
+  - 'http://localhost:80'
+  - 'http://localhost:8080'
+  - 'http://localhost:5173'
+
+# Required to find DQM EOS metadata: runs, datasets, histogram root files
+dqm_meta_store:
+  base_dqm_eos_dir: '/eos/cms/store/group/comm_dqm/DQMGUI_data'
+  find_tmp_results_file: '/data/dqm_root_files.txt'
+  meta_store_json_file: '/data/dqm_meta.json'
+  last_n_run_years: 2
+  file_suffix_pat: '*DQMIO.root'

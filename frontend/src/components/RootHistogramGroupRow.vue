@@ -25,7 +25,7 @@ router.beforeEach(() => {
 
 <template>
   <BaseDivider nav-bar></BaseDivider>
-  <div class="group w-full block gap-2 h-8">
+  <div class="group w-full block h-6">
     <span class="dark:dark:border-slate-700 text-xs lg:text-sm">
       <span
         class="border border-solid text-xs lg:text-sm bg-pink-300 dark:bg-pink-500 via-pink-900 font-bold leading-none tracking-tight px-2 py-1">
@@ -37,7 +37,7 @@ router.beforeEach(() => {
       {{ rootFile }}
     </span>
   </div>
-  <div class="w-full grid grid-cols-1 gap-1 lg:grid-cols-6 mb-1 border-solid border-2">
+  <div class="grid grid-cols-1 lg:grid-cols-6 border-solid border-2 gap-1">
     <RootHistogramWidget
       v-for="(hist, index) in histograms"
       :key="index"

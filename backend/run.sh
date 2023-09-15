@@ -24,7 +24,7 @@ fi
 keytab=$1
 
 # Change _MY_NODE_NAME_ with Kubernetes node name: check kubernetes/ppdgui.yaml for env var $MY_NODE_NAME
-sed "s/_MY_NODE_NAME_/$MY_NODE_NAME/" backend/config.tmpl.yaml >"$FAST_API_CONF"
+sed "s/_MY_NODE_NAME_/$MY_NODE_NAME/" backend/config/server.k8s.yaml >"$FAST_API_CONF"/server.yaml
 
 # Start CRON for kerberos cron job
 
@@ -42,14 +42,15 @@ echo "Cron PID:${pid}"
 backend/kerberos.sh "$keytab"
 
 # Add daily kerberos ticket update cron job to crontab
+# Add hourly eos grinder cron job to crontab
 export >/etc/environment
 (
     crontab -l 2>/dev/null
     echo "00 3 * * * . /etc/environment; $WDIR/backend/kerberos.sh /etc/secrets/keytab >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
-    echo "*/10 * * * * . /etc/environment; python -c 'from backend.dqm_meta.eos_grinder import run; run()' >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
+    echo "00 * * * * . /etc/environment; python -c 'from backend.dqm_meta.eos_grinder import run; run()' >>/proc/$(cat /var/run/crond.pid)/fd/1 2>&1"
 ) | crontab -
 
-# Fetch and format DQM EOS metadata at the start
+# Initialize metadata: Run DQM EOS grinder to fetch and format DQM EOS metadata befor start backend service
 python -c 'from backend.dqm_meta.eos_grinder import run; run()'
 
 # START FastAPI
