@@ -14,7 +14,7 @@ export const useMainRunStore = defineStore("mainRun", {
   actions: {
     async getRunHistorgrams(argRunNumber) {
       try {
-        const r = await axios.post("/v1/get-histogram-jsons", {
+        const r = await axios.post("/v1/get-run-hists", {
           run_number: argRunNumber,
         });
         const data = await r.data;

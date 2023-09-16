@@ -9,19 +9,19 @@ import logging
 
 from ROOT import TFile, TBufferJSON
 
-from backend.api_v1.models import ResponseHistograms, ResponseHistogram, ResponseDetectorGroup
+from backend.api_v1.models import ResponseRun, ResponseHistogram, ResponseDetectorGroup
 from backend.config import get_config
 from backend.dqm_meta.client import DqmMetadataClient
 
 # Allowed histogram classes
-WorkableHistogramClasses = ("TH1F", "TH2F")
+AllowedRootClasses = ("TH1F", "TH2F")
 logging.basicConfig(level=get_config().loglevel.upper())
 
 
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 
 
-def get_all_histograms(run_number: int = 0) -> ResponseHistograms:
+def get_run_histograms(run_number: int = 0, allowed_histogram_classes: tuple = AllowedRootClasses) -> ResponseRun:
     """Returns histograms of a specific run number of a run year
 
     run number 0 returns the last run
@@ -55,15 +55,14 @@ def get_all_histograms(run_number: int = 0) -> ResponseHistograms:
             group_directory=group_conf.group_directory,
             histograms_full_paths=__full_paths,
             run_number=my_run_number,
+            allowed_histogram_classes=allowed_histogram_classes,
         )
         # Append to the main response list
         detector_group_list_resp.append(detector_group_histograms)
 
         logging.debug(f"Detector group histograms list={detector_group_list_resp}")
 
-    return ResponseHistograms(
-        run_year=my_run_year, run_number=my_run_number, detector_histograms=detector_group_list_resp
-    )
+    return ResponseRun(run_year=my_run_year, run_number=my_run_number, detector_histograms=detector_group_list_resp)
 
 
 def util_get_detector_group_histograms(
@@ -72,6 +71,7 @@ def util_get_detector_group_histograms(
     group_directory: str,
     histograms_full_paths: tuple[str],
     run_number: int,
+    allowed_histogram_classes: tuple = None,
 ) -> tuple[ResponseDetectorGroup, int]:
     """Returns ResponseDetectorGroup which includes detector group's histograms and run year
 
@@ -81,6 +81,7 @@ def util_get_detector_group_histograms(
         group_directory: Detector group's EOS directory name: HLTPhysics, JetMET1, etc.
         histograms_full_paths: Full object paths of the histograms of the detector group
         run_number: run number to find the ROOT file of the group
+        allowed_histogram_classes: Allowed ROOT histogram classes. For instance, in overlaying plots, only TH1F can be used in THStack
     """
     # Find the ROOT file metadata from DQM store client via EOS directory structure
     root_file_meta = dqm_store_client.get_det_group_root_file(run_number=run_number, group_directory=group_directory)
@@ -88,7 +89,9 @@ def util_get_detector_group_histograms(
 
     # Histogram jsons of detector group
     group_histograms = util_get_histogram_jsons(
-        tfile=root_file_meta.root_file, histograms_full_paths=histograms_full_paths
+        tfile=root_file_meta.root_file,
+        histograms_full_paths=histograms_full_paths,
+        allowed_histogram_classes=allowed_histogram_classes,
     )
 
     return (
@@ -103,12 +106,15 @@ def util_get_detector_group_histograms(
 
 
 @functools.lru_cache(maxsize=1000, typed=False)  # Caches responses, params are hashabel so it works
-def util_get_histogram_jsons(tfile: str, histograms_full_paths: tuple[str] = None) -> list[ResponseHistogram]:
+def util_get_histogram_jsons(
+    tfile: str, histograms_full_paths: tuple[str] = None, allowed_histogram_classes: tuple = None
+) -> list[ResponseHistogram]:
     """Returns list of histogram JSONs of requested root objects, used mostly for single Detector Group's histograms
 
     Args:
         tfile: Reachable ROOT file path
         histograms_full_paths: ROOT objects full paths inside the ROOT file
+        allowed_histogram_classes: Allowed ROOT histogram classes. For instance, in overlaying plots, only TH1F can be used in THStack
     Returns:
         list of histogram JSONs
     """
@@ -120,7 +126,7 @@ def util_get_histogram_jsons(tfile: str, histograms_full_paths: tuple[str] = Non
             assumed_hist = tf.Get(obj)
             if not assumed_hist.IsZombie():
                 assumed_hist_class = assumed_hist.ClassName()
-                if assumed_hist_class in WorkableHistogramClasses:
+                if assumed_hist_class in allowed_histogram_classes:
                     # Histogram object path is provided, so return its JSON
                     hist_resp = ResponseHistogram(
                         name=assumed_hist.GetName(),

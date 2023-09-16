@@ -8,10 +8,16 @@ Description : Models of FastApi client
 from pydantic import BaseModel
 
 
-class RequestHistograms(BaseModel):
+class RequestSingleRun(BaseModel):
     """Post request schema to get ROOT object JSON"""
 
     run_number: int | None = None  # Histograms of a run number, None means recent run
+
+
+class RequestOverlay(BaseModel):
+    """Post request schema to get ROOT object JSON for overlay which use multiple run numbers"""
+
+    run_numbers: list[int] | None = None  # Histograms of a run number, None means recent run
 
 
 class ResponseHistogram(BaseModel):
@@ -31,9 +37,16 @@ class ResponseDetectorGroup(BaseModel):
     histograms: list[ResponseHistogram] | list = []  # Histogram data of the detector group
 
 
-class ResponseHistograms(BaseModel):
+class ResponseRun(BaseModel):
     """Main response schema to histograms requests"""
 
     run_year: int | None = None  # Run year
     run_number: int | None = None  # Run number
+    detector_histograms: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list
+
+
+class ResponseOverlay(BaseModel):
+    """Main response schema to overlay histograms requests"""
+
+    run_numbers: list[int] | None = None  # Run number
     detector_histograms: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list

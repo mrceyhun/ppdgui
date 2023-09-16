@@ -22,12 +22,12 @@ async function drawHistJson(domId, jsonData, histType) {
   // console.log('Read object of type', histJson, domId);
   switch (histType) {
     case 'TH1F':
-      return draw(domId, obj, "hist");
+      return await draw(domId, obj, "hist");
     case 'TH2F':
-      return draw(domId, obj, "colz");
+      return await draw(domId, obj, "colz");
     default:
       console.log(`Cannot draw ROOT class type of ${histType}. Drawing default "hist".`);
-      return draw(domId, obj, "hist");
+      return await draw(domId, obj, "hist");
   }
 }
 </script>
