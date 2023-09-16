@@ -10,7 +10,7 @@
 ##H   - MY_NODE_NAME  : defined in k8s manifest
 ##H   - FAST_API_CONF : defined in k8s manifest
 ##H Used files as input:
-##H   - backend/config.tmpl.yaml
+##H   - backend/config/server.k8s.yaml
 ##H   - backend/kerberos.sh
 ##H   - backend/main.py
 ##H   - /etc/secrets/keytab : defined in k8s manifest

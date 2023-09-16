@@ -16,7 +16,6 @@ defineProps({
   },
 });
 
-
 /* JSROOT MAIN DRAW FUNCTION */
 async function drawHistJson(domId, jsonData, histType) {
   const obj = await jsrootParse(jsonData);
@@ -31,7 +30,6 @@ async function drawHistJson(domId, jsonData, histType) {
       return draw(domId, obj, "hist");
   }
 }
-
 </script>
 
 <template>
@@ -44,6 +42,5 @@ async function drawHistJson(domId, jsonData, histType) {
     </span> -->
 
     {{ drawHistJson(name, data, type) }}
-
   </div>
 </template>
