@@ -4,7 +4,7 @@ import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
 import { containerMaxW } from "@/config.js";
 import RootHistogramGroupRow from "@/components/RootHistogramGroupRow.vue";
-import { useMainRunStore } from "@/stores/mainRun.js";
+import { useOverlayRunsStore } from "@/stores/overlayRuns.js";
 
 const router = useRouter();
 const isAsideMobileExpanded = ref(false);
@@ -15,10 +15,10 @@ router.beforeEach(() => {
   isAsideLgActive.value = false;
 });
 
-const mainRunStore = useMainRunStore();
+const overlayRunsStore = useOverlayRunsStore();
 
 /* Nested obj reactivity is not working, so we use v-if="hasUpdated" */
-const { hasUpdated, detectorHistograms } = storeToRefs(mainRunStore)
+const { hasUpdated, detectorHistograms } = storeToRefs(overlayRunsStore)
 </script>
 
 <template>
@@ -30,7 +30,7 @@ const { hasUpdated, detectorHistograms } = storeToRefs(mainRunStore)
       :histograms="detectorGroup.histograms"
       :group-name="detectorGroup.gname"
       :dataset="detectorGroup.dataset"
-      :root-file="detectorGroup.root_file" />
+      root-file="" />
 
   </section>
 </template>

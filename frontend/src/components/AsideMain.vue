@@ -1,7 +1,7 @@
 <script setup>
-import { mdiClose, mdiHome, mdiTagSearchOutline, mdiCounter, mdiGithub } from "@mdi/js";
-import AsideMenuItem from "@/components/AsideMenuItem.vue";
-import AsideMenuRunInput from "@/components/AsideMenuRunInput.vue";
+import { mdiClose, mdiHome, mdiTagSearchOutline, mdiCounter, mdiGithub, mdiChartBarStacked } from "@mdi/js";
+import AsideItem from "@/components/AsideItem.vue";
+import AsideMainRunInput from "@/components/AsideMainRunInput.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import { useStyleStore } from "@/stores/style.js";
 import { useMainRunStore } from "@/stores/mainRun.js";
@@ -50,17 +50,22 @@ const asideLgCloseClick = (event) => {
         :class="styleStore.darkMode ? 'aside-scrollbars-[slate]' : styleStore.asideScrollbarsStyle"
         class="flex-1 overflow-y-auto overflow-x-hidden">
         <ul>
-          <AsideMenuItem
+          <AsideItem
             key="aside-item-dashboard"
             :item="{ 'icon': mdiCounter, 'label': mainRunStore.runNumber, 'color': 'info' }"
             @menu-click="menuClick" />
 
-          <AsideMenuItem
+          <AsideItem
             key="aside-item-github"
             :item="{ 'href': 'https://github.com/mrceyhun/ppdgui', 'icon': mdiGithub, 'label': 'GitHub', 'target': '_blank' }"
             @menu-click="menuClick" />
 
-          <AsideMenuRunInput
+          <AsideItem
+            key="aside-item-overlay"
+            :item="{ 'href': '/#/overlay', 'icon': mdiChartBarStacked, 'label': 'Overlay', 'target': '_blank' }"
+            @menu-click="menuClick" />
+
+          <AsideMainRunInput
             is-aside-input
             key="aside-item-input-run"
             :icon="mdiTagSearchOutline"

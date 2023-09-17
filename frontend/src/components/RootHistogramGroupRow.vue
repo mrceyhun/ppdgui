@@ -9,8 +9,6 @@ defineProps({
   groupName: { type: String, required: true },
   dataset: { type: String, required: true, },
   rootFile: { type: String, required: true, },
-  runNumber: { type: Number, required: true, },
-  runYear: { type: Number, required: true, },
 });
 
 const router = useRouter();

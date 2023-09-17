@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/views/HomeView.vue";
+import OverlayRunsView from "@/views/OverlayRunsView.vue";
 
 const routes = [
   {
@@ -9,6 +10,14 @@ const routes = [
     path: "/",
     name: "dashboard",
     component: Home,
+  },
+  {
+    meta: {
+      title: "PPDGUI",
+    },
+    path: "/overlay",
+    name: "overlay_runs",
+    component: OverlayRunsView,
   },
   {
     meta: {

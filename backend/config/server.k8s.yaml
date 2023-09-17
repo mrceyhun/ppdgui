@@ -8,10 +8,7 @@ loglevel: 'debug'
 allowed_cors_origins:
   - 'http://_MY_NODE_NAME_'
   - 'http://_MY_NODE_NAME_:32000'
-  - 'http://localhost'
-  - 'http://localhost:80'
-  - 'http://localhost:8080'
-  - 'http://localhost:5173'
+  - '*'
 
 # Required to find DQM EOS metadata: runs, datasets, histogram root files
 dqm_meta_store:
