@@ -5,6 +5,7 @@ import App from "./App.vue";
 import router from "./router";
 import axios from "axios";
 import { useMainRunStore } from "@/stores/mainRun.js";
+import { useOverlayRunsStore } from "@/stores/overlayRuns.js";
 import { useStyleStore } from "@/stores/style.js";
 import { darkModeKey, styleKey } from "@/config.js";
 
@@ -29,6 +30,7 @@ createApp(App).use(router).use(pinia).mount("#app");
 
 /* Init Pinia stores */
 useMainRunStore(pinia);
+useOverlayRunsStore(pinia);
 const styleStore = useStyleStore(pinia);
 
 /* App style */

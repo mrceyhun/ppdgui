@@ -6,11 +6,7 @@ api_v1_prefix: '/ppdgui/api/v1'
 environment: 'dev'
 loglevel: 'debug'
 allowed_cors_origins:
-  - 'http://localhost:8080'
-  - 'http://localhost:80'
-  - 'http://localhost'
-  - 'http://localhost:5173'
-  - 'http://ceyhun-vm.cern.ch:8080'
+  - '*'
 
 # Required to find DQM EOS metadata: runs, datasets, histogram root files
 dqm_meta_store:
