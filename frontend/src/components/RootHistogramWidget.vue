@@ -17,6 +17,8 @@ defineProps({
 });
 
 /* JSROOT MAIN DRAW FUNCTION */
+/* TODO: ZOOM CONTROL or savePng control https://root.cern/js/latest/api.htm#custom_html_zooming_src */
+
 async function drawHistJson(domId, jsonData, histType) {
   const obj = await jsrootParse(jsonData);
   // console.log('Read object of type', histJson, domId);

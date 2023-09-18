@@ -83,23 +83,37 @@ def util_join_hists_to_thstack(hists: list[ResponseHistogram], runs: list[int]) 
     # Create THStack
     ths = THStack()
     # Create legend, ref https://gist.github.com/skaplanhex/55982ed5ddcc966dfc2d
-    leg = TLegend(0.9, 0.7, 1.0, 0.9)
-    leg.SetBorderSize(0)
+    leg = TLegend(0.75, 0.7, 1.0, 0.9)
+    leg.SetBorderSize(1)
     leg.SetFillColor(0)
     leg.SetFillStyle(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.035)
+    leg.SetTextSize(0.35)
 
     c = TCanvas()
     i = 1  # will control both line style and line color
+
+    # They are same in all histograms(same groups' same histograms, but different runs)
+    histName, histTitle = "", ""
     for hist, run in zip(hists, runs):
         histRoot = TBufferJSON.ConvertFromJSON(hist.data)
+
+        # Get meta
+        histName = histRoot.GetName()
+        histTitle = histRoot.GetTitle()
+
+        # Differantiate to look better in Stack. Check refs: https://root.cern.ch/doc/master/classTAttLine.html
         histRoot.SetLineStyle(i)
         histRoot.SetLineColor(i)
-        leg.AddEntry(histRoot, "run-" + str(run), "l")
+        leg.AddEntry(histRoot, str(run), "l")
         ths.Add(histRoot)
         i += 1
+
+    ths.SetName(histName)  # Set THStack histogram name same as histograms
+    ths.SetTitle(histTitle)  # Set THStack histogram title same as histograms
+
     ths.Draw("nostack,hist")
     leg.Draw()
-    c.Draw()
-    return ResponseHistogram(name=hists[0].name, type="TCanvas", data=str(TBufferJSON.ToJSON(c)))
+    c.Draw()  # Required to get all objects in "c" JSON
+
+    return ResponseHistogram(name=histName, type="TCanvas", data=str(TBufferJSON.ToJSON(c)))

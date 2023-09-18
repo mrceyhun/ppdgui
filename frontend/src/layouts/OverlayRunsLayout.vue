@@ -24,7 +24,8 @@ const { hasUpdated, detectorHistograms } = storeToRefs(overlayRunsStore)
 <template>
   <section class="p-0 px-0" :class="containerMaxW">
 
-    <RootHistogramGroupRow v-if="hasUpdated"
+    <RootHistogramGroupRow
+      v-if="hasUpdated"
       v-for="(detectorGroup, index) in detectorHistograms"
       :key="index"
       :histograms="detectorGroup.histograms"

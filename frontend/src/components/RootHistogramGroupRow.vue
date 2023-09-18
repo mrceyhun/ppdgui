@@ -5,10 +5,18 @@ import RootHistogramWidget from "@/components/RootHistogramWidget.vue";
 import BaseDivider from "@/components/BaseDivider.vue";
 
 defineProps({
-  histograms: { type: Array, required: true, },
-  groupName: { type: String, required: true },
-  dataset: { type: String, required: true, },
-  rootFile: { type: String, required: true, },
+  histograms: {
+    type: Array, required: true,
+  },
+  groupName: {
+    type: String, required: true
+  },
+  dataset: {
+    type: String, required: true,
+  },
+  rootFile: {
+    type: String, required: true,
+  },
 });
 
 const router = useRouter();
@@ -35,7 +43,7 @@ router.beforeEach(() => {
       {{ rootFile }}
     </span>
   </div>
-  <div class="grid grid-cols-1 lg:grid-cols-6 border-solid border-2 gap-1">
+  <div class="grid lg:grid-cols-5 grid-cols-1 border-solid border-2 gap-1">
     <RootHistogramWidget
       v-for="(hist, index) in histograms"
       :key="index"

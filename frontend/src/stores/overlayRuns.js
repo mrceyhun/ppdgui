@@ -13,7 +13,7 @@ export const useOverlayRunsStore = defineStore("overlayRuns", {
   actions: {
     async getOverlayHistorgrams(argListRunNumbers) {
       console.log(JSON.stringify(argListRunNumbers));
-      if (argListRunNumbers.length >= 2) {
+      if (argListRunNumbers.length >= 1) {
         try {
           const r = await axios.post("/v1/get-overlay-hists", {
             run_numbers: argListRunNumbers,
@@ -42,6 +42,12 @@ export const useOverlayRunsStore = defineStore("overlayRuns", {
             console.log("Error", e.message);
           }
         }
+      } else {
+        // If there is no run given, refresh reactive variables to their defaults
+        this.hasUpdated = false;
+        this.runNumbers = [];
+        this.detectorHistograms = [];
+        this.hasUpdated = true;
       }
     },
     updateOverlayRunNumbers(runs) {

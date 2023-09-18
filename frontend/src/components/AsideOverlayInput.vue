@@ -105,7 +105,7 @@ input[type=number] {
           </button>
         </form>
         <ul v-if="inputRuns.length > 0">
-          <li v-for="run, index in inputRuns" :key="index" class="grid grid-cols-2 border border-slate-300 rounded-md">
+          <li v-for="run, index in inputRuns" :key="index" class="grid grid-cols-2 border border-slate-300 rounded-md odd:bg-zinc-700">
             <span class="text-xs mb-0 w-24 focus:ring-blue-500 focus:border-blue-500 text-white ">
               <span class="text-xs">{{ index }}.</span> {{ run }}
             </span>
