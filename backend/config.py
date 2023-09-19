@@ -22,25 +22,27 @@ class ConfigDqmMetaStore(BaseModel):
     file_suffix_pat: str  # DQM ROOT files has different suffixes, so define them while parsing. Default used is "*DQMIO.root"
 
 
-class ConfigHistogram(BaseModel):
-    """Single histogram required config"""
+class ConfigPlot(BaseModel):
+    """Single plot/histogram's required config"""
 
-    name: str  # Name of the histogram
-    type: str  # Its type: TH1F, TH2F
+    name: str  # Name of the plot
+    dqm_link: str  # DQMGUI link of the plot
+    draw_opt: str  # JSROOT draw option: hist,colz...
+    type: str  # Its type: TH1F, TH2F, TProfile...
 
 
-class ConfigDetectorGroup(BaseModel):
-    """Histogram group for a detector like L1T HLT"""
+class ConfigGroup(BaseModel):
+    """Group config (detector like L1T HLT) with their plots"""
 
-    gname: str  # Group name: L1T, HLT
-    group_directory: str  # Group directory, separate group name: JetMET1, HLTPhysics, ...
-    histograms_tdirectory_pattern: str  # Holds the TDirectory pattern(requires run number) of the required histograms in the ROOT file
+    group_name: str  # Group name: L1T, HLT
+    eos_directory: str  # Group directory, separate group name: JetMET1, HLTPhysics, ...
+    tdirectory: str  # Holds the TDirectory pattern(requires run number) of the required histograms in the ROOT file
     description: str | None = None  # Optional description
-    histograms: list[ConfigHistogram]  # Configs of detector's histograms: names and types of histograms
+    plots: list[ConfigPlot]  # Configs of group's plots
 
 
 class Config(BaseModel):
-    """Config schema"""
+    """Main config schema"""
 
     host: str  # Uvicorn host
     port: int  # Uvicorn port
@@ -50,7 +52,7 @@ class Config(BaseModel):
     environment: str  # Dev or prod
     allowed_cors_origins: list[str]  # Middleware green light for the domains/url:ports for CORS
     dqm_meta_store: ConfigDqmMetaStore  # DQM Meta Store configs
-    histograms_config: list[ConfigDetectorGroup]  # Config of each detector group for their histograms
+    plots_config: list[ConfigGroup]  # Config of each detector group for their histograms
 
 
 def read_file(file_path: str):
@@ -73,7 +75,7 @@ def get_config():
 
     # Get histogram configs, type:list
     histograms_config_dict = read_file(
-        os.path.join(os.getenv(key="FAST_API_CONF", default=__default_config_path), "histograms.yaml")
+        os.path.join(os.getenv(key="FAST_API_CONF", default=__default_config_path), "plots.yaml")
     )
 
     # join configs
@@ -86,4 +88,4 @@ def get_config():
 def get_config_group_directories() -> list:
     """Returns detector group directories"""
     c = get_config()
-    return [item.group_directory for item in c.histograms_config]
+    return [item.eos_directory for item in c.plots_config]

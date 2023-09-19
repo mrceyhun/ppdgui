@@ -17,21 +17,28 @@ from backend.config import Config
 class DqmMeta(BaseModel):
     """Representation of single DQM ROOT file's parsed metadata"""
 
-    run: int  # Run number
-    year: int  # Run year
-    group_directory: str  # Detector group directory: JetMET1, HLTPhysics, so on
-    dataset: str  # Dataset name embedded in the ROOT file name: Run2023A-PromptReco-v1, Run2023D-Express-v1
+    dataset: str  # Dataset name embedded in the ROOT file name: JetMET1/Run2023A-PromptReco-v1, JetMET1/Run2023D-Express-v1
+    eos_directory: str  # Detector group directory: JetMET1, HLTPhysics, so on
+    era: int  # Run era
     root_file: str  # full EOS path of the root file
+    run: int  # Run number
+
+
+class DqmKeyOfEraDatasetRun(BaseModel):
+    """Era, Dataset and Run couples: Era > Dataset > Run"""
+
+    dataset: str  # Dataset name
+    era: str  # Era of dataset
+    run: int  # Run number of the dataset
 
 
 class DqmMainMetadata(RootModel):
     """DQM main metadata format: dict(RUN NUMBER, dict(GROUP DIRECTORY, DqmMeta))
 
-    Makes it fast to find run number and detector group directory
-    { run_number: { group_directory_1: DqmMeta, group_directory_2: DqmMeta }, run_number2:  { group_directory_1: DqmMeta } }
+    Makes it fast to find era, dataset, run number and detector group directory
     """
 
-    root: Dict[int, Dict[str, DqmMeta]]
+    root: Dict[DqmKeyOfEraDatasetRun, DqmMeta]
 
     def __iter__(self):
         return iter(self.root)

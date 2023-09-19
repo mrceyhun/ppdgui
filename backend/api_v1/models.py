@@ -9,44 +9,45 @@ from pydantic import BaseModel
 
 
 class RequestSingleRun(BaseModel):
-    """Post request schema to get ROOT object JSON"""
+    """Post request schema to get ROOT object JSO for a single run response"""
 
-    run_number: int | None = None  # Histograms of a run number, None means recent run
+    run: int | None = None  # Run number, None means the most recent run
 
 
 class RequestOverlay(BaseModel):
     """Post request schema to get ROOT object JSON for overlay which use multiple run numbers"""
 
-    run_numbers: list[int] | None = None  # Histograms of a run number, None means recent run
+    runs: list[int] | None = None  # List of runs for overlay, None means the most recent run without overlay
 
 
-class ResponseHistogram(BaseModel):
-    """Representation of histogram"""
+class ResponsePlot(BaseModel):
+    """Representation of a plot/histogram"""
 
+    data: str | None = None  # Histogram JSON created using TBufferJSON
+    dqm_url: str | None = None  # DQMGUI url
+    draw_opt: str | None = None  # Histogram JSROOT draw option
     name: str | None = None  # Histogram name
-    type: str | None = None  # Histogram type
-    data: str | None = None  # JSON
+    type: str | None = None  # Histogram type: TH1F, TH2F, TProfile
 
 
-class ResponseDetectorGroup(BaseModel):
+class ResponseGroup(BaseModel):
     """Representation of histogram"""
 
-    gname: str | None = None  # Detector group name: L1T, HLT
+    group_name: str | None = None  # Detector group name: L1T, HLT
     dataset: str | None = None  # Detector group data root file's dataset name
     root_file: str | None = None  # Detector group root file full EOS path
-    histograms: list[ResponseHistogram] | list = []  # Histogram data of the detector group
+    plots: list[ResponsePlot] | list = []  # Histogram data of the detector group
 
 
-class ResponseRun(BaseModel):
+class ResponseSingleRun(BaseModel):
     """Main response schema to histograms requests"""
 
-    run_year: int | None = None  # Run year
-    run_number: int | None = None  # Run number
-    detector_histograms: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list
+    run: int | None = None  # Run number
+    detector_histograms: list[ResponseGroup] | list = []  # Histogram detector groups list
 
 
-class ResponseOverlay(BaseModel):
+class ResponseOverlayRuns(BaseModel):
     """Main response schema to overlay histograms requests"""
 
-    run_numbers: list[int] | None = None  # Run number
-    detector_histograms: list[ResponseDetectorGroup] | list = []  # Histogram detector groups list
+    runs: list[int] | None = None  # Run numbers
+    group_plots: list[ResponseGroup] | list = []  # Detector groups lists

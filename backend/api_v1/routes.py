@@ -27,10 +27,10 @@ async def get_run_hists(req: Union[RequestSingleRun, None]):
     """
     logging.info("Request:get-run-hists " + str(req))
     try:
-        return pyroot_run.get_run_histograms(run_number=req.run_number)
+        return pyroot_run.get_run_histograms(run_number=req.run)
     except Exception as e:
         logging.error(f"Cannot process request. Incoming request => {str(req)}. Error: {str(e)}")
-        raise HTTPException(status_code=404, detail=f"Error while processing request of [ run:{req.run_number} ]")
+        raise HTTPException(status_code=404, detail=f"Error while processing request of [ run:{req.run} ]")
 
 
 @router.post("/get-overlay-hists")
@@ -38,9 +38,7 @@ async def get_overlay_hists(req: Union[RequestOverlay, None]):
     """Get ROOT overlayed histograms in JSON of TCanvas  format by providing run numbers"""
     logging.info("Request:get-overlay-hists " + str(req))
     try:
-        return pyroot_overlay.get_overlay_histograms(run_numbers=req.run_numbers)
+        return pyroot_overlay.get_overlay_histograms(run_numbers=req.runs)
     except Exception as e:
         logging.error(f"Cannot process request. Incoming request => {str(req)}. Error: {str(e)}")
-        raise HTTPException(
-            status_code=404, detail=f"Error while processing request of [ run numbers:{req.run_numbers} ]"
-        )
+        raise HTTPException(status_code=404, detail=f"Error while processing request of [ run numbers:{req.runs} ]")

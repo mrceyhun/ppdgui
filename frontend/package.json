@@ -11,7 +11,7 @@
     "@mdi/js": "^7.2.96",
     "@rushstack/eslint-patch": "^1.3.3",
     "axios": "^1.5.0",
-    "jsroot": "^7.4.3",
+    "jsroot": "github:root-project/jsroot#dev",
     "pinia": "^2.1.6",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
@@ -26,7 +26,7 @@
     "autoprefixer": "^10.4.15",
     "eslint": "^8.49.0",
     "eslint-plugin-vue": "^9.17.0",
-    "jsroot": "^7.4.3",
+    "jsroot": "github:root-project/jsroot#dev",
     "postcss": "^8.4.29",
     "postcss-import": "^15.1.0",
     "prettier": "^3.0.3",

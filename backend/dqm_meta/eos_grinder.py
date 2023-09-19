@@ -20,9 +20,10 @@ import re
 import subprocess
 import time
 from datetime import datetime
+from typing import Tuple
 
 from backend.config import get_config, get_config_group_directories
-from .client import DqmMainMetadata, DqmMeta
+from .client import DqmMainMetadata, DqmMeta, DqmKeyOfEraDatasetRun
 
 logging.basicConfig(level=get_config().loglevel.upper())
 
@@ -116,14 +117,10 @@ def get_formatted_meta_from_raw_input(input_file, allowed_group_directories) -> 
         with open(input_file) as fin:
             dqm_main_metadata = {}
             for root_file_name in fin.readlines():
-                dqm_meta = _get_detector_group_meta(root_file_name, allowed_group_directories)
-                if dqm_meta:
-                    if dqm_meta.run in dqm_main_metadata:
-                        # Update group directories of the run
-                        dqm_main_metadata[dqm_meta.run].update({dqm_meta.group_directory: dqm_meta})
-                    else:
-                        # create run content
-                        dqm_main_metadata.update({dqm_meta.run: {dqm_meta.group_directory: dqm_meta}})
+                dqm_key_era_dataset_run, dqm_meta = _get_detector_group_meta(root_file_name, allowed_group_directories)
+                if dqm_key_era_dataset_run:
+                    # add to dict
+                    dqm_main_metadata.update({dqm_key_era_dataset_run: dqm_meta})
 
             return DqmMainMetadata(dqm_main_metadata)
     except Exception as e:
@@ -133,29 +130,35 @@ def get_formatted_meta_from_raw_input(input_file, allowed_group_directories) -> 
 
 # Compiled regex pattern to parse ROOT file name
 #   Expected input: /eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/AlCaPPSPrompt/0003658xx/DQM_V0001_R000365835__AlCaPPSPrompt__Run2023A-PromptReco-v1__DQMIO.root
-#   Expected output of re groupdict: {'year': '2023', 'group_directory': 'AlCaPPSPrompt', 'run': '000365835', 'dataset': 'Run2023A-PromptReco-v1'}
+#   Expected output of re groupdict: {'year': '2023', 'group_directory': 'AlCaPPSPrompt', 'run': '000365835', 'dataset_prefix': 'AlCaPPSPrompt', 'era': 'Run2023A', 'dataset_suffix': 'Run2023A-PromptReco-v1'}
 DQM_EOS_ROOT_RE = re.compile(
-    r".+?/Run(?P<year>\d+)/(?P<group_directory>.+?)/(.+?)/DQM_V(\d+)_R(?P<run>\d+)__(.+?)__(?P<dataset>.+?)__DQMIO.root"
+    r".+?/Run(?P<year>\d+)/(?P<group_directory>.+?)/(.+?)/DQM_V(\d+)_R(?P<run>\d+)__(?P<dataset_pref>.+?)__(?P<era>.+?)-(?P<dataset_suff>.+?)__DQMIO.root"
 )
 
 
-def _get_detector_group_meta(file, allowed_group_directories) -> DqmMeta:
+def _get_detector_group_meta(file_name, allowed_group_directories) -> Tuple[DqmKeyOfEraDatasetRun, DqmMeta]:
     """Parsea and formats single DQM EOS ROOT file name
 
     Args:
-        file: EOS full path of ROOT file, i.e /eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/AlCa.../...x/DQM_V0001_...__DQMIO.root
+        file_name: EOS full path of ROOT file, i.e /eos/cms/store/group/comm_dqm/DQMGUI_data/Run2023/AlCa.../...x/DQM_V0001_...__DQMIO.root
         allowed_group_directories: Only given group directories in the config file will be used.
     """
 
-    file = file.strip()  # Remove new line
-    re_match_dict = re.match(DQM_EOS_ROOT_RE, file).groupdict()  # Match regex and get key-value pairs as dict
+    file_name = file_name.strip()  # Remove new line
+    re_match_dict = re.match(DQM_EOS_ROOT_RE, file_name).groupdict()  # Match regex and get key-value pairs as dict
 
     # Get regex group dict in which the names are already provided in the regex pattern
     if re_match_dict["group_directory"] in allowed_group_directories:
-        return DqmMeta(
+        # 'dataset_prefix': 'AlCaPPSPrompt', 'era': 'Run2023A', 'dataset_suffix': 'Run2023A-PromptReco-v1'
+        dataset_name = re_match_dict["dataset_pref"] + "/" + re_match_dict["era"] + "-" + re_match_dict["dataset_suff"]
+        return DqmKeyOfEraDatasetRun(
+            dataset=dataset_name,
+            era=re_match_dict["era"],
             run=re_match_dict["run"],
-            year=re_match_dict["year"],
-            group_directory=re_match_dict["group_directory"],
-            dataset=re_match_dict["dataset"],
-            root_file=file,
+        ), DqmMeta(
+            dataset=dataset_name,
+            eos_directory=re_match_dict["group_directory"],
+            era=re_match_dict["era"],
+            root_file=file_name,
+            run=re_match_dict["run"],
         )

@@ -7,7 +7,7 @@ Description : PyROOT utils
 import logging
 from ROOT import TBufferJSON, TCanvas, THStack, TLegend
 
-from backend.api_v1.models import ResponseOverlay, ResponseHistogram, ResponseDetectorGroup
+from backend.api_v1.models import ResponseOverlayRuns, ResponsePlot, ResponseGroup
 from backend.config import get_config
 from .pyroot_run import get_run_histograms
 
@@ -19,11 +19,11 @@ logging.basicConfig(level=get_config().loglevel.upper())
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 
 
-def get_overlay_histograms(run_numbers: list[int]) -> ResponseOverlay:
+def get_overlay_histograms(run_numbers: list[int]) -> ResponseOverlayRuns:
     """Returns histograms of list of runs
 
     Each run response contains ordered detector groups and ordered histograms. Only same histograms (same name)
-    can be overlay using THStack and TCanvas. Because of ordered responses, indexes will be used to stack/overlay
+    can be overlayed using THStack and TCanvas. Because of ordered responses, indexes will be used to stack/overlay
     histograms.
     """
     runs_responses = [
@@ -39,35 +39,35 @@ def get_overlay_histograms(run_numbers: list[int]) -> ResponseOverlay:
                 [run_response.detector_histograms[index] for run_response in runs_responses], run_numbers
             )
         )
-    return ResponseOverlay(run_numbers=run_numbers, detector_histograms=list_response_detector_groups)
+    return ResponseOverlayRuns(runs=run_numbers, group_plots=list_response_detector_groups)
 
 
-def util_join_detector_groups(detector_groups: list[ResponseDetectorGroup], runs: list[int]):
+def util_join_detector_groups(detector_groups: list[ResponseGroup], runs: list[int]):
     """Joins same detector group histograms of different runs
 
     Args:
         detector_groups: ResponseDetectorGroup histograms should belong to the same group of different run.
         runs: Run numbers of detector groups in order with detector_groups.
     """
-    gname = detector_groups[0].gname
+    gname = detector_groups[0].group_name
     dataset = detector_groups[0].dataset
     list_response_histograms = []
     # Histograms should be identical and sorted by previous processes. Each histogram in the same index will return same histogram
-    histograms_cnt = len(detector_groups[0].histograms)
+    histograms_cnt = len(detector_groups[0].plots)
     for index in range(histograms_cnt):
         list_response_histograms.append(
             # Get list of same histogram in each run group
-            util_join_hists_to_thstack([det_group.histograms[index] for det_group in detector_groups], runs)
+            util_join_hists_to_thstack([det_group.plots[index] for det_group in detector_groups], runs)
         )
-    return ResponseDetectorGroup(
-        gname=gname,
+    return ResponseGroup(
+        group_name=gname,
         dataset=dataset,
         root_file=None,
-        histograms=list_response_histograms,
+        plots=list_response_histograms,
     )
 
 
-def util_join_hists_to_thstack(hists: list[ResponseHistogram], runs: list[int]) -> ResponseHistogram:
+def util_join_hists_to_thstack(hists: list[ResponsePlot], runs: list[int]) -> ResponsePlot:
     """Joins same histograms of different runs and join them to THStack TCanvas
 
     In ROOT, overlay is possible using THStack. Histograms with different color and line style is added to the THStack
@@ -116,4 +116,4 @@ def util_join_hists_to_thstack(hists: list[ResponseHistogram], runs: list[int]) 
     leg.Draw()
     c.Draw()  # Required to get all objects in "c" JSON
 
-    return ResponseHistogram(name=histName, type="TCanvas", data=str(TBufferJSON.ToJSON(c)))
+    return ResponsePlot(name=histName, type="TCanvas", data=str(TBufferJSON.ToJSON(c)))
