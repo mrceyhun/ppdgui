@@ -52,7 +52,7 @@ class Config(BaseModel):
     environment: str  # Dev or prod
     allowed_cors_origins: list[str]  # Middleware green light for the domains/url:ports for CORS
     dqm_meta_store: ConfigDqmMetaStore  # DQM Meta Store configs
-    plots_config: list[ConfigGroup]  # Config of each detector group for their histograms
+    plots_config: list[ConfigGroup]  # [HISTOGRAMS_CONFIG_NAME] Config of each detector group for their histograms
 
 
 def read_file(file_path: str):
@@ -65,6 +65,9 @@ def get_config():
     """Returns the ConfigServer object"""
     # Get server config as object. FAST_API_CONF env variable should be defined in k8s manifest or before server run
     global __config_cache
+
+    # It will be appended main config with this name
+    HISTOGRAMS_CONFIG_NAME = "plots_config"
     if __config_cache:
         return __config_cache
 
@@ -79,7 +82,7 @@ def get_config():
     )
 
     # join configs
-    server_config_dict.update({"histograms_config": histograms_config_dict})
+    server_config_dict.update({HISTOGRAMS_CONFIG_NAME: histograms_config_dict})
 
     __config_cache = Config(**server_config_dict)
     return __config_cache

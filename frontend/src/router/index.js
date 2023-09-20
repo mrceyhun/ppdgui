@@ -5,7 +5,7 @@ import OverlayRuns from "@/views/OverlayRunsView.vue";
 const routes = [
   {
     meta: {
-      title: "PPDGUI",
+      title: "PPD Dashboard",
     },
     path: "/",
     name: "dashboard",
@@ -13,7 +13,7 @@ const routes = [
   },
   {
     meta: {
-      title: "PPDGUI",
+      title: "PPD Dashboard",
     },
     path: "/overlay",
     name: "overlay",

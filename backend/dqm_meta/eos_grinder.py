@@ -20,12 +20,87 @@ import re
 import subprocess
 import time
 from datetime import datetime
-from typing import Tuple
+from pydantic import BaseModel, RootModel
+from typing import List
 
-from backend.config import get_config, get_config_group_directories
-from .client import DqmMainMetadata, DqmMeta, DqmKeyOfEraDatasetRun
+from backend.config import Config, get_config, get_config_group_directories
 
 logging.basicConfig(level=get_config().loglevel.upper())
+
+# SCHEMA ---------------------------------------------------------------------
+
+
+class DqmMeta(BaseModel):
+    """Representation of single DQM ROOT file's parsed metadata"""
+
+    dataset: str  # Dataset name embedded in the ROOT file name: JetMET1/Run2023A-PromptReco-v1, JetMET1/Run2023D-Express-v1
+    eos_directory: str  # Detector group directory: JetMET1, HLTPhysics, so on
+    era: str  # Run era
+    root_file: str  # full EOS path of the root file
+    run: int  # Run number
+
+
+class DqmMetaStore(RootModel):
+    """DQM main metadata format: list of DqmMeta"""
+
+    root: List[DqmMeta]
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, item):
+        return self.root[item]
+
+    def get_eras(self) -> List[str]:
+        """Get all available era names"""
+        return list(set([item.era for item in self.root]))
+
+    def get_datasets(self) -> List[str]:
+        """Get all available dataset names"""
+        return list(set([m.dataset for m in self.root]))
+
+    def get_runs(self, limit: int = 100) -> List[int]:
+        """Get run numbers with a return limit"""
+        return sorted({m.run for m in self.root}, reverse=True)[:limit]
+
+    def get_max_run(self) -> int:
+        """Get max run number"""
+        return max(m.run for m in self.root)
+
+    def get_meta_by_dataset(self, dataset: str, limit: int = 10) -> List[DqmMeta]:
+        """Get metadata list of a dataset sorted by run"""
+        return sorted([m for m in self.root if m.dataset == dataset], key=lambda x: x.run, reverse=True)[:limit]
+
+    def get_meta_by_run(self, run: int, limit: int = 10) -> List[DqmMeta]:
+        """Get metadata list of a run sorted by run"""
+        return sorted([m for m in self.root if m.run == run], key=lambda x: x.run, reverse=True)[:limit]
+
+    def get_meta_by_era(self, era: str, limit: int = 10) -> List[DqmMeta]:
+        """Get metadata list of an era sorted by run"""
+        return sorted([m for m in self.root if m.era == era], key=lambda x: x.run, reverse=True)[:limit]
+
+    def get_meta_by_group_and_run(self, group_directory: str, run: int) -> DqmMeta:
+        """Get metadata of a group and run"""
+        # For a single run+group couple there should be single ROOT file
+        try:
+            return [m for m in self.root if (m.run == run and m.eos_directory == group_directory)][0]
+        except:
+            return None
+
+
+# CLIENT ---------------------------------------------------------------------
+def get_dqm_store(config: Config):
+    """DqmMetaStore client to search DQM GUI root files, directories, run numbers and datasets
+
+    Args:
+        config: given Config object to get `dqm_meta_store.meta_store_json_file`
+    """
+    # TODO: refresh it in each 10 minutes
+    with open(config.dqm_meta_store.meta_store_json_file) as f:
+        return DqmMetaStore.model_validate_json(f.read())
+
+
+# GRINDER --------------------------------------------------------------------
 
 
 def run():
@@ -106,7 +181,7 @@ def run_sh_find_cmd(base_search_dirs: list[str], outfile: str, file_suffix_pat: 
     r.check_returncode()
 
 
-def get_formatted_meta_from_raw_input(input_file, allowed_group_directories) -> DqmMainMetadata:
+def get_formatted_meta_from_raw_input(input_file, allowed_group_directories) -> DqmMetaStore:
     """Read raw ROOT file names from input file and format them in DqmMetaStore schema and return
 
     Args:
@@ -115,14 +190,12 @@ def get_formatted_meta_from_raw_input(input_file, allowed_group_directories) -> 
     """
     try:
         with open(input_file) as fin:
-            dqm_main_metadata = {}
-            for root_file_name in fin.readlines():
-                dqm_key_era_dataset_run, dqm_meta = _get_detector_group_meta(root_file_name, allowed_group_directories)
-                if dqm_key_era_dataset_run:
-                    # add to dict
-                    dqm_main_metadata.update({dqm_key_era_dataset_run: dqm_meta})
-
-            return DqmMainMetadata(dqm_main_metadata)
+            dqm_main_meta_list = [
+                get_group_meta(root_file_name, allowed_group_directories) for root_file_name in fin.readlines()
+            ]
+            # Remove None
+            dqm_main_meta_list = [item for item in dqm_main_meta_list if item is not None]
+            return DqmMetaStore(dqm_main_meta_list)
     except Exception as e:
         logging.error(f"Cannot parse data of given input file. input file:{input_file}. Error: {str(e)}")
         raise
@@ -136,7 +209,7 @@ DQM_EOS_ROOT_RE = re.compile(
 )
 
 
-def _get_detector_group_meta(file_name, allowed_group_directories) -> Tuple[DqmKeyOfEraDatasetRun, DqmMeta]:
+def get_group_meta(file_name, allowed_group_directories) -> DqmMeta:
     """Parsea and formats single DQM EOS ROOT file name
 
     Args:
@@ -151,14 +224,12 @@ def _get_detector_group_meta(file_name, allowed_group_directories) -> Tuple[DqmK
     if re_match_dict["group_directory"] in allowed_group_directories:
         # 'dataset_prefix': 'AlCaPPSPrompt', 'era': 'Run2023A', 'dataset_suffix': 'Run2023A-PromptReco-v1'
         dataset_name = re_match_dict["dataset_pref"] + "/" + re_match_dict["era"] + "-" + re_match_dict["dataset_suff"]
-        return DqmKeyOfEraDatasetRun(
-            dataset=dataset_name,
-            era=re_match_dict["era"],
-            run=re_match_dict["run"],
-        ), DqmMeta(
+        return DqmMeta(
             dataset=dataset_name,
             eos_directory=re_match_dict["group_directory"],
             era=re_match_dict["era"],
             root_file=file_name,
             run=re_match_dict["run"],
         )
+    else:
+        return None

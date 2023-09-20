@@ -39,7 +39,7 @@ const asideLgCloseClick = (event) => {
               :path="mdiHome"
               class="flex-none"
               w="w-16"
-              :size="18" /> GUI
+              :size="18" /> Dashboard
           </a>
         </div>
         <button class="hidden lg:inline-block xl:hidden p-3" @click.prevent="asideLgCloseClick">

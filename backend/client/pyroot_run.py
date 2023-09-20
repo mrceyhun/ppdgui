@@ -11,7 +11,7 @@ from ROOT import TFile, TBufferJSON
 
 from backend.api_v1.models import ResponseSingleRun, ResponsePlot, ResponseGroup
 from backend.config import get_config
-from backend.dqm_meta.client import DqmMetadataClient
+from backend.dqm_meta.eos_grinder import get_dqm_store, DqmMetaStore
 
 # Allowed histogram classes
 AllowedRootClasses = ("TH1F", "TH2F")
@@ -29,12 +29,11 @@ def get_run_histograms(
     run number 0 returns the last run
     """
     conf = get_config()
-    dqm_store_client = DqmMetadataClient(config=conf)
-    detector_groups_dirs = [grp.eos_directory for grp in conf.plots_config]
+    dqm_store_client = get_dqm_store(config=conf)
 
     # If both run number is not defined, return latest run
     if run_number <= 0:
-        my_run_number = dqm_store_client.last_run_number(detector_groups_dirs)
+        my_run_number = dqm_store_client.get_max_run()
     else:
         my_run_number = run_number
 
@@ -70,7 +69,7 @@ def get_run_histograms(
 
 
 def util_get_detector_group_histograms(
-    dqm_store_client: DqmMetadataClient,
+    dqm_store_client: DqmMetaStore,
     group_name: str,
     group_directory: str,
     histograms_full_paths: tuple[str],
@@ -88,8 +87,10 @@ def util_get_detector_group_histograms(
         allowed_histogram_classes: Allowed ROOT histogram classes. For instance, in overlaying plots, only TH1F can be used in THStack
     """
     # Find the ROOT file metadata from DQM store client via EOS directory structure
-    root_file_meta = dqm_store_client.get_det_group_root_file(run_number=run_number, group_directory=group_directory)
+    root_file_meta = dqm_store_client.get_meta_by_group_and_run(group_directory=group_directory, run=run_number)
     logging.debug(f"root_file_meta={root_file_meta}")
+    if not root_file_meta:
+        return None, None
 
     # Histogram jsons of detector group
     group_histograms = util_get_histogram_jsons(
