@@ -15,3 +15,4 @@ dqm_meta_store:
   meta_store_json_file: 'dqm_meta.json'
   last_n_run_years: 2
   file_suffix_pat: '*DQMIO.root'
+  cache_retention_secs: 600
