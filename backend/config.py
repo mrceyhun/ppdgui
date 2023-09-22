@@ -54,6 +54,7 @@ class ConfigPlots(BaseModel):
 
     draw_options: Dict[str, str]  # key: ROOT class, value: draw option, Draw options of the ROOT histogram classes
     groups: List[ConfigPlotsGroup]  # [HISTOGRAMS_CONFIG_NAME] Config of each detector group for their histograms
+    max_era_run_size: int  # Maximum number of runs in overlays
 
 
 class Config(BaseModel):

@@ -12,7 +12,7 @@ from backend.dqm_meta.client import get_dqm_store
 
 def get_formatted_hist_path(tdirectory: str, name: str, run: int):
     """Returns formatted histogram objects full path inside the ROOT file"""
-    return tdirectory.format(run_num_int=run).rstrip('/') + "/" + name.lstrip('/')
+    return tdirectory.format(run_num_int=run).rstrip("/") + "/" + name.lstrip("/")
 
 
 def get_formatted_hist_dqm_url(conf_url: str, dataset: str, run: int):

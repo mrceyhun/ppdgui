@@ -37,6 +37,7 @@ class ResponsePlotsDict(RootModel):
 
     Used to store all histograms of a group for easy access
     """
+
     root: Dict[str, ResponsePlot]
 
     def get_plots_only(self) -> List[ResponsePlot]:

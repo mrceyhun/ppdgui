@@ -26,9 +26,11 @@ logging.basicConfig(level=get_config().loglevel.upper())
 
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 
+
 @functools.lru_cache(maxsize=1000, typed=False)  # Caches responses, params are hashabel so it works
-def util_read_group_plots_of_one_run_from_root_file(group_config: ConfigPlotsGroup,
-                                                    dqm_meta: DqmMeta) -> Union[ResponsePlotsDict, None]:
+def util_read_group_plots_of_one_run_from_root_file(
+    group_config: ConfigPlotsGroup, dqm_meta: DqmMeta
+) -> Union[ResponsePlotsDict, None]:
     """Returns a group histogram JSONs of one run
 
     Reading all plots of a group for one run is the most efficient way because all plots are in one ROOT file.
@@ -65,13 +67,13 @@ def util_read_group_plots_of_one_run_from_root_file(group_config: ConfigPlotsGro
                     assumed_hist_class = str(assumed_hist.ClassName()).strip()
 
                     # Create hist url from dataset and run number
-                    hist_dqm_url = utils.get_formatted_hist_dqm_url(conf_url=plot_conf.dqm_link,
-                                                                    dataset=dqm_meta.dataset,
-                                                                    run=dqm_meta.run)
+                    hist_dqm_url = utils.get_formatted_hist_dqm_url(
+                        conf_url=plot_conf.dqm_link, dataset=dqm_meta.dataset, run=dqm_meta.run
+                    )
                     name = str(assumed_hist.GetName())
 
                     # keep in mind that hash can be negative too which includes dash in str
-                    _id = 'id' + str(hash(name))
+                    _id = "id" + str(hash(name))
 
                     data = ""
                     try:
@@ -88,7 +90,8 @@ def util_read_group_plots_of_one_run_from_root_file(group_config: ConfigPlotsGro
                         hist_name=name,
                         conf_name=plot_conf.name,
                         run=dqm_meta.run,
-                        type=assumed_hist_class)
+                        type=assumed_hist_class,
+                    )
                 else:
                     logging.warning(f"Zombie friend => file: {dqm_meta.root_file}, obj path: {obj_path}")
 
@@ -173,7 +176,8 @@ def util_overlay_runs_data_of_one_hist_to_single_thstack(
         hist_name=runs_data_of_one_hist[0].hist_name,
         conf_name=runs_data_of_one_hist[0].conf_name,
         run=0,  # it is overlaid with runs
-        type="THStack")
+        type="THStack",
+    )
 
 
 def util_overlay_group_hists(
@@ -193,8 +197,7 @@ def util_overlay_group_hists(
         if list_of_runs_data_of_same_histogram:
             resp_overlaid_group_hists.append(
                 util_overlay_runs_data_of_one_hist_to_single_thstack(
-                    runs_data_of_one_hist=list_of_runs_data_of_same_histogram,
-                    run_era_map=run_era_map
+                    runs_data_of_one_hist=list_of_runs_data_of_same_histogram, run_era_map=run_era_map
                 )
             )
     return resp_overlaid_group_hists
@@ -218,8 +221,9 @@ def get_group_histograms(group_conf: ConfigPlotsGroup, run_era_map: Dict[int, st
 
     # Iterate runs and get their jsons
     for run in sorted(runs, reverse=True):
-        group_dqm_meta = dqm_store_client.get_meta_by_group_and_run(group_directory=group_conf.eos_directory,
-                                                                    run_num=run)
+        group_dqm_meta = dqm_store_client.get_meta_by_group_and_run(
+            group_directory=group_conf.eos_directory, run_num=run
+        )
         if not group_dqm_meta:
             continue  # Skip if this group and run is not in DQM metadata
 
@@ -234,15 +238,10 @@ def get_group_histograms(group_conf: ConfigPlotsGroup, run_era_map: Dict[int, st
         # OVERLAID: If there are more than 1 run, it means return overlaid
         plots = util_overlay_group_hists(group_config=group_conf, runs_plots=raw_runs_plots, run_era_map=run_era_map)
 
-    return ResponseGroup(
-        group_name=group_conf.group_name,
-        plots=plots
-    )
+    return ResponseGroup(group_name=group_conf.group_name, plots=plots)
 
 
-def get_histograms(
-    runs: List[int] | None = None, groups: List[str] = None, eras: List[str] = None
-) -> ResponseMain:
+def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras: List[str] = None) -> ResponseMain:
     """Main function to get all histograms with provided filters
 
     Args:
@@ -265,14 +264,16 @@ def get_histograms(
         # If eras or runs given. If both of them are given, both are applied in the filters
         # ... which means their "AND" condition will be applied.
         groups_runs_of_eras_dict = dqm_store_client.get_groups_runs_of_eras(
-            groups_eos_dirs=groups_eos_directories, eras=eras, runs=runs
+            groups_eos_dirs=groups_eos_directories, eras=eras, runs=runs, run_limit=conf.plots.max_era_run_size
         )
     else:
         # No runs or ERAs given, so return recent run's results
         # TODO: find recent run from DQM folks instead of intuitive recent run finding!
         recent_run = dqm_store_client.get_max_run()
         logging.debug(f"recent_run: {recent_run}")
-        groups_runs_of_eras_dict = dqm_store_client.get_groups_runs_of_eras(groups_eos_dirs=groups, runs=[recent_run])
+        groups_runs_of_eras_dict = dqm_store_client.get_groups_runs_of_eras(
+            groups_eos_dirs=groups, runs=[recent_run], run_limit=conf.plots.max_era_run_size
+        )
 
     logging.debug(f"groups_runs_of_eras_dict: {groups_runs_of_eras_dict}")
 
@@ -281,14 +282,10 @@ def get_histograms(
     for group_conf in conf.plots.groups:
         if groups and (group_conf.group_name in groups):
             continue  # skip the group
-        group_result = get_group_histograms(group_conf=group_conf,
-                                            run_era_map=groups_runs_of_eras_dict[group_conf.eos_directory])
+        group_result = get_group_histograms(
+            group_conf=group_conf, run_era_map=groups_runs_of_eras_dict[group_conf.eos_directory]
+        )
         if group_result:
             list_of_groups_results.append(group_result)
 
-    return ResponseMain(
-        runs=runs,
-        eras=eras,
-        groups=groups,
-        groups_data=list_of_groups_results
-    )
+    return ResponseMain(runs=runs, eras=eras, groups=groups, groups_data=list_of_groups_results)

@@ -31,6 +31,7 @@ CACHE_REFRESH_PERIOD_SECS = 10 * 60  # 10 minutes
 
 # EOS GRINDER ----------------------------------------------------------------
 
+
 def run():
     """Run with given yaml config
 
@@ -82,8 +83,8 @@ def run_sh_find_cmd(base_search_dirs: list[str], outfile: str, file_suffix_pat: 
         outfile: file to store find command results
         file_suffix_pat: find command "-iname" suffix pattern like '*DQMIO.root'
     """
-    # find "${baseEosDirs[@]}" -iname '*DQMIO.root' >"$outputFile"
-    cmd = f"find {' '.join(base_search_dirs)} -iname '{file_suffix_pat}' >{outfile}"
+    # find "${baseEosDirs[@]}" -iname '*DQMIO.root' | sort -nr >"$outputFile"
+    cmd = f"find {' '.join(base_search_dirs)} -iname '{file_suffix_pat}' | sort -nr>{outfile}"
     # cmd = f"find {' '.join(base_search_dirs)} \( -path '*/JetMET1/*' -o -path '*/HLTPhysics/*' \) -iname '{file_suffix_pat}' >{outfile}"
     r = subprocess.run(cmd, capture_output=True, shell=True, check=True)
     if r.returncode:
@@ -135,8 +136,9 @@ def get_group_meta(file_name, allowed_group_directories) -> Union[DqmMeta, None]
     # Get regex group dict in which the names are already provided in the regex pattern
     if re_match_dict["group_directory"] in allowed_group_directories:
         # 'dataset_prefix': 'AlCaPPSPrompt', 'era': 'Run2023A', 'dataset_suffix': 'Run2023A-PromptReco-v1'
-        dataset_name = re_match_dict["dataset_prefix"] + "/" + re_match_dict["era"] + "-" + re_match_dict[
-            "dataset_suffix"]
+        dataset_name = (
+            re_match_dict["dataset_prefix"] + "/" + re_match_dict["era"] + "-" + re_match_dict["dataset_suffix"]
+        )
         return DqmMeta(
             dataset=dataset_name,
             eos_directory=re_match_dict["group_directory"],
