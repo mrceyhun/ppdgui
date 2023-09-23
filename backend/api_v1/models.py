@@ -62,7 +62,7 @@ class ResponseGroup(BaseModel):
 class ResponseMain(BaseModel):
     """Main response schema to overlay histograms requests"""
 
-    runs: List[int] | None = None  # Run numbers
     eras: List[str] | None = None  # Eras
     groups: List[str] | None = None  # Groups
     groups_data: List[ResponseGroup] | List = []  # Detector groups results list
+    runs: List[int] | None = None  # Run numbers

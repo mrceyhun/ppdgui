@@ -1,6 +1,6 @@
 # Kubernetes
 
-#### ppdgui-secret
+#### ppd-dashboard-secret
 
 It requires valid CERN user keytab to access /eos/cms
 
@@ -19,7 +19,7 @@ wkt keytab
 quit
 ```
 
-- Create `ppdgui-secrets` k8s secret in default namespace
+- Create `ppd-dashboard-secret` k8s secret in default namespace
 
-```kubectl create secret generic ppdgui-secrets --from-file=keytab --dry-run=client -o yaml | kubectl apply -f -```
+```kubectl create secret generic ppd-dashboard-secrets --from-file=keytab --dry-run=client -o yaml | kubectl apply -f -```
 

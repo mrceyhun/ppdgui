@@ -1,21 +1,21 @@
 <script setup>
+import BaseDivider from "@/components/BaseDivider.vue";
+import RootHistogramWidget from "@/components/RootHistogramWidget.vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import RootHistogramWidget from "@/components/RootHistogramWidget.vue";
-import BaseDivider from "@/components/BaseDivider.vue";
 
 defineProps({
-  histograms: {
-    type: Array, required: true,
+  plots: {
+    type: Array, required: true
   },
   groupName: {
-    type: String, required: true
+    type: String
   },
   dataset: {
-    type: String, required: true,
+    type: String
   },
   rootFile: {
-    type: String, required: true,
+    type: String
   },
 });
 
@@ -45,10 +45,11 @@ router.beforeEach(() => {
   </div>
   <div class="grid lg:grid-cols-5 grid-cols-1 border-solid border-2 gap-1">
     <RootHistogramWidget
-      v-for="(hist, index) in histograms"
-      :key="index"
-      :name="hist.name"
-      :type="hist.type"
-      :data="hist.data" />
+      v-for="(plot, index) in plots"
+      :key="plot.id"
+      :id="plot.id"
+      :name="plot.conf_name"
+      :type="plot.type"
+      :data="plot.data" />
   </div>
 </template>

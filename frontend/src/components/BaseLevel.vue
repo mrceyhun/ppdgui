@@ -1,5 +1,5 @@
 <script>
-import { h, defineComponent } from "vue";
+import { defineComponent, h } from "vue";
 
 export default defineComponent({
   name: "BaseLevel",

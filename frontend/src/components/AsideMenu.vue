@@ -1,10 +1,8 @@
 <script setup>
-import { mdiClose, mdiHome, mdiTagSearchOutline, mdiCounter, mdiGithub, mdiChartBarStacked } from "@mdi/js";
-import AsideItem from "@/components/AsideItem.vue";
-import AsideMainRunInput from "@/components/AsideMainRunInput.vue";
+import AsideMenuInputs from "@/components/AsideMenuInputs.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import { useStyleStore } from "@/stores/style.js";
-import { useMainRunStore } from "@/stores/mainRun.js";
+import { mdiClose, mdiHome, mdiTagSearchOutline } from "@mdi/js";
 
 defineProps({
   isAsideMobileExpanded: Boolean,
@@ -12,7 +10,6 @@ defineProps({
 });
 
 const emit = defineEmits(["menu-click", "aside-lg-close-click"]);
-const mainRunStore = useMainRunStore();
 const styleStore = useStyleStore();
 
 const menuClick = (event, item) => {
@@ -42,35 +39,24 @@ const asideLgCloseClick = (event) => {
               :size="18" /> Dashboard
           </a>
         </div>
-        <button class="hidden lg:inline-block xl:hidden p-3" @click.prevent="asideLgCloseClick">
+        <button class=" lg:inline-block xl:hidden p-3" @click.prevent="asideLgCloseClick">
           <BaseIcon :path="mdiClose" />
         </button>
       </div>
       <div
         :class="styleStore.darkMode ? 'aside-scrollbars-[slate]' : styleStore.asideScrollbarsStyle"
         class="flex-1 overflow-y-auto overflow-x-hidden">
-        <ul>
-          <AsideItem
-            key="aside-item-dashboard"
-            :item="{ 'icon': mdiCounter, 'label': mainRunStore.runNumber, 'color': 'info' }"
-            @menu-click="menuClick" />
+        <!-- ADDITIONAL ITEMS CAN BE ADDED HERE -->
+        <!-- <ul>
 
           <AsideItem
             key="aside-item-github"
             :item="{ 'href': 'https://github.com/mrceyhun/ppdgui', 'icon': mdiGithub, 'label': 'GitHub', 'target': '_blank' }"
             @menu-click="menuClick" />
-
-          <AsideItem
-            key="aside-item-overlay"
-            :item="{ 'href': '/#/overlay', 'icon': mdiChartBarStacked, 'label': 'Overlay', 'target': '_blank' }"
-            @menu-click="menuClick" />
-
-          <AsideMainRunInput
-            is-aside-input
-            key="aside-item-input-run"
-            :icon="mdiTagSearchOutline"
-            :item={} />
-        </ul>
+        </ul> -->
+        <AsideMenuInputs
+          :icon="mdiTagSearchOutline"
+          :item={} />
       </div>
     </div>
   </aside>

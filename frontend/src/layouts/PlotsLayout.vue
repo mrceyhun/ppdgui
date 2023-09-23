@@ -1,10 +1,10 @@
 <script setup>
-import { ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
-import { containerMaxW } from "@/config.js";
 import RootHistogramGroupRow from "@/components/RootHistogramGroupRow.vue";
-import { useMainRunStore } from "@/stores/mainRun.js";
+import { containerMaxW } from "@/config.js";
+import { usePlotsStore } from "@/stores/plots.js";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const isAsideMobileExpanded = ref(false);
@@ -15,10 +15,10 @@ router.beforeEach(() => {
   isAsideLgActive.value = false;
 });
 
-const mainRunStore = useMainRunStore();
+const plotsStore = usePlotsStore();
 
 /* Nested obj reactivity is not working, so we use v-if="hasUpdated" */
-const { hasUpdated, detectorHistograms } = storeToRefs(mainRunStore)
+const { hasUpdated, resp_groups_data } = storeToRefs(plotsStore)
 </script>
 
 <template>
@@ -26,12 +26,12 @@ const { hasUpdated, detectorHistograms } = storeToRefs(mainRunStore)
 
     <RootHistogramGroupRow
       v-if="hasUpdated"
-      v-for="(detectorGroup, index) in detectorHistograms"
+      v-for="(detectorGroup, index) in resp_groups_data"
       :key="index"
-      :histograms="detectorGroup.histograms"
-      :group-name="detectorGroup.gname"
+      :plots="detectorGroup.plots"
+      :group-name="detectorGroup.group_name"
       :dataset="detectorGroup.dataset"
-      :root-file="detectorGroup.root_file" />
+      root-file="" />
 
   </section>
 </template>

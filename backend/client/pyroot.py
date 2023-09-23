@@ -288,4 +288,6 @@ def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras
         if group_result:
             list_of_groups_results.append(group_result)
 
-    return ResponseMain(runs=runs, eras=eras, groups=groups, groups_data=list_of_groups_results)
+    resp = ResponseMain(runs=runs, eras=eras, groups=groups, groups_data=list_of_groups_results)
+    # logging.debug(resp.model_dump_json())
+    return resp

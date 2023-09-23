@@ -66,9 +66,9 @@ class DqmMetaStore(RootModel):
         for item in self.root:
             # "eras" is None or item era is in "eras" list to filter. Same for runs and groups
             cond = (
-                ((eras is None) or (item.era in eras))
-                and ((groups_eos_dirs is None) or (item.eos_directory in groups_eos_dirs))
-                and ((runs is None) or (item.run in runs))
+                ((not eras) or (item.era in eras))
+                and ((not groups_eos_dirs) or (groups_eos_dirs) or (item.eos_directory in groups_eos_dirs))
+                and ((not runs) or (item.run in runs))
             )
             if cond:
                 if item.eos_directory in result:

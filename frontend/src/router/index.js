@@ -1,6 +1,5 @@
-import { createRouter, createWebHashHistory } from "vue-router";
 import Home from "@/views/HomeView.vue";
-import OverlayRuns from "@/views/OverlayRunsView.vue";
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
@@ -9,22 +8,6 @@ const routes = [
     },
     path: "/",
     name: "dashboard",
-    component: Home,
-  },
-  {
-    meta: {
-      title: "PPD Dashboard",
-    },
-    path: "/overlay",
-    name: "overlay",
-    component: OverlayRuns,
-  },
-  {
-    meta: {
-      title: "Forms",
-    },
-    path: "/forms",
-    name: "forms",
     component: Home,
   },
 ];

@@ -1,4 +1,4 @@
-import { mdiLogout, mdiThemeLightDark, mdiGithub } from "@mdi/js";
+import { mdiGithub, mdiLogout, mdiThemeLightDark } from "@mdi/js";
 
 export default [
   {

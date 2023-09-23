@@ -1,5 +1,5 @@
 {
-  "name": "ppdgui",
+  "name": "ppd-dashboard",
   "version": "0.0.1",
   "scripts": {
     "dev": "vite",

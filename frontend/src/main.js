@@ -1,19 +1,18 @@
-import { createApp } from "vue";
 import { createPinia } from "pinia";
+import { createApp } from "vue";
 
+import { darkModeKey, styleKey } from "@/config.js";
+import { usePlotsStore } from "@/stores/plots";
+import { useStyleStore } from "@/stores/style.js";
+import axios from "axios";
 import App from "./App.vue";
 import router from "./router";
-import axios from "axios";
-import { useMainRunStore } from "@/stores/mainRun.js";
-import { useOverlayRunsStore } from "@/stores/overlayRuns.js";
-import { useStyleStore } from "@/stores/style.js";
-import { darkModeKey, styleKey } from "@/config.js";
 
 import "./css/main.css";
 
 /* Set axios base url */
 const isEnvDev = import.meta.env.DEV;
-console.log("Env:" + isEnvDev);
+console.log("isEnvDev:" + isEnvDev);
 if (isEnvDev) {
   // axios.defaults.baseURL = "http://ceyhun-k8s-lbva4duqns2g-node-0:32001/ppdgui/api";
   axios.defaults.baseURL = "http://ceyhun-vm.cern.ch:8081/ppdgui/api";
@@ -29,15 +28,13 @@ const pinia = createPinia();
 createApp(App).use(router).use(pinia).mount("#app");
 
 /* Init Pinia stores */
-useMainRunStore(pinia);
-useOverlayRunsStore(pinia);
+const plotsStore = usePlotsStore(pinia);
+plotsStore.getEras();
+
 const styleStore = useStyleStore(pinia);
 
 /* App style */
 styleStore.setStyle(localStorage[styleKey] ?? "basic");
-
-/* Get histograms */
-// mainRunStore.getRunHistorgrams(2023, mainRunStore.runNumber);
 
 /* Dark mode */
 if (

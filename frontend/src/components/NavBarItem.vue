@@ -1,11 +1,11 @@
 <script setup>
-import { mdiChevronUp, mdiChevronDown } from "@mdi/js";
-import { RouterLink } from "vue-router";
-import { computed, ref, onMounted, onBeforeUnmount } from "vue";
-import { useStyleStore } from "@/stores/style.js";
+import BaseDivider from "@/components/BaseDivider.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import NavBarMenuList from "@/components/NavBarMenuList.vue";
-import BaseDivider from "@/components/BaseDivider.vue";
+import { useStyleStore } from "@/stores/style.js";
+import { mdiChevronDown, mdiChevronUp } from "@mdi/js";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 
 const props = defineProps({
   item: {

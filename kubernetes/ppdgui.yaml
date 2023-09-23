@@ -1,10 +1,10 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: ppdgui
+  name: ppd-dashboard
 spec:
   selector:
-    app: ppdgui
+    app: ppd-dashboard
   type: NodePort
   ports:
     - name: backend
@@ -21,25 +21,25 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ppdgui
+  name: ppd-dashboard
   labels:
-    app: ppdgui
+    app: ppd-dashboard
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ppdgui
+      app: ppd-dashboard
   template:
     metadata:
       labels:
-        app: ppdgui
+        app: ppd-dashboard
     spec:
-      hostname: ppdgui
+      hostname: ppd-dashboard
       containers:
         # ------------- BACKEND ------------------------------------------------------
         - name: backend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-back:latest
+          image: mrceyhun/ppd-dashboard-back:latest
           command: [ "backend/run.sh" ]
           args: [ "/etc/secrets/keytab" ]
           env:
@@ -64,7 +64,7 @@ spec:
           stdin: true
           tty: true
           volumeMounts:
-            - name: ppdgui-secrets
+            - name: ppd-dashboard-secrets
               mountPath: /etc/secrets
               readOnly: true
             - name: eos
@@ -73,7 +73,7 @@ spec:
         # ------------- FRONTEND -----------------------------------------------------
         - name: frontend
           imagePullPolicy: Always
-          image: mrceyhun/ppdgui-front:latest
+          image: mrceyhun/ppd-dashboard-front:latest
           command: [ "/run.sh" ]
           env:
             - name: MY_NODE_NAME
@@ -83,7 +83,7 @@ spec:
             - name: K8S_ENV
               value: "prod"
             - name: VITE_BACKEND_API_BASE_URL # see frontend/src/main.js and frontend/run.sh, used in axios
-              value: "http://$(MY_NODE_NAME):32001/ppdgui/api"
+              value: "http://$(MY_NODE_NAME):32001/ppd-dashboard/api"
           ports:
             - containerPort: 80
               name: frontend
@@ -95,9 +95,9 @@ spec:
               cpu: 500m
               memory: 750Mi
       volumes:
-        - name: ppdgui-secrets
+        - name: ppd-dashboard-secrets
           secret:
-            secretName: ppdgui-secrets
+            secretName: ppd-dashboard-secrets
         - name: eos
           hostPath:
             path: /var/eos
