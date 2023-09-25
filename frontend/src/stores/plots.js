@@ -14,7 +14,7 @@ export const usePlotsStore = defineStore("plots", {
     /* Controls of loading animation, different than hasUpdated */
     hasTriggeredToUpdate: true,
     /* Controls how many RUNs should be included per ERA. Returned RUNs are always the most recent RUNs. */
-    limitMaxEraRunSizePerGroup: 5,
+    limitMaxEraRunSizePerGroup: 2,
     /* Holds available detector Groups coming from backend */
     availableGroups: [],
     /* Holds available ERAs coming from backend */
