@@ -29,7 +29,8 @@ createApp(App).use(router).use(pinia).mount("#app");
 
 /* Init Pinia stores */
 const plotsStore = usePlotsStore(pinia);
-plotsStore.getEras();
+plotsStore.getAvailableGroups();
+plotsStore.getAvailableEras();
 
 const styleStore = useStyleStore(pinia);
 

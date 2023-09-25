@@ -70,9 +70,16 @@ class Config(BaseModel):
     dqm_meta_store: ConfigDqmMetaStore  # DQM Meta Store configs
     plots: ConfigPlots  # plots.yaml config
 
-    def get_plots_group_eos_dir_map(self) -> Dict[str, str]:
+    def get_group_name_eos_directory_map(self) -> Dict[str, str]:
         """Returns map of {group name:group eos directory}"""
         return {item.group_name: item.eos_directory for item in self.plots.groups}
+
+    def get_eos_directories_of_groups(self, group_names: List[str] = []) -> Dict[str, str]:
+        """Returns map of {group name:group eos directory}"""
+        if not group_names:  # No filter, return all
+            return [item.eos_directory for item in self.plots.groups]
+        else:
+            return [item.eos_directory for item in self.plots.groups if item.group_name in group_names]
 
 
 def read_file(file_path: str):

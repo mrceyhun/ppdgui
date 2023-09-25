@@ -6,7 +6,7 @@ Description : DQM Metadata Store Schema
 """
 
 import logging
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Tuple
 from collections import defaultdict
 
 from pydantic import BaseModel, RootModel
@@ -42,18 +42,36 @@ class DqmMetaStore(RootModel):
     def __getitem__(self, item):
         return self.root[item]
 
-    def get_eras(self) -> List[str]:
-        """Get all available era names"""
-        return list(set([item.era for item in self.root]))
+    def get_eras_filtered(self, group_names: List[str] = []) -> List[str]:
+        """Get all available era names available for the given group names"""
+        conf = get_config()
+        if not group_names:  # Return all
+            return list(set([item.era for item in self.root]))
+        else:  # Filter by group name
+            available_eos_directories = conf.get_eos_directories_of_groups(group_names=group_names)
+            return list(set([item.era for item in self.root if item.eos_directory in available_eos_directories]))
+
+    def get_runs_era_tuples(self, limit: int, groups: List[str] = [], eras: List[str] = []) -> List[Tuple[int, str]]:
+        """Get all run:era couple with given filters. Limit is applied to RUN size of per ERA"""
+        conf = get_config()
+        available_eos_directories = conf.get_eos_directories_of_groups(group_names=groups)
+        group_run_era_dict = self.get_groups_and_runs_of_eras(
+            eras=eras, groups_eos_dirs=available_eos_directories, runs=None, run_limit=limit
+        ).values()
+        run_era_dict = dict(
+            sum([list(run_era_dicts.items()) for run_era_dicts in group_run_era_dict], [])
+        )  # flatten and get rid of groups
+
+        return list(run_era_dict.items())
 
     def get_datasets(self) -> List[str]:
         """Get all available dataset names"""
         return list(set([m.dataset for m in self.root]))
 
-    def get_groups_runs_of_eras(
+    def get_groups_and_runs_of_eras(
         self, eras: List[str] = None, groups_eos_dirs: List[str] = None, runs: List[int] = None, run_limit: int = 1000
     ) -> Dict[str, Dict[int, str]]:
-        """Finds runs of eras for the given eras, groups and runs, and returns {group eos dir:{run:era}} map
+        """Finds runs of eras for the given eras, groups and runs, and returns |-- {group eos dir:{run: era}} --| map
 
         Args:
             eras: DQM Metadata Store results filtered with given ERA list. If None, no filter
@@ -67,7 +85,7 @@ class DqmMetaStore(RootModel):
             # "eras" is None or item era is in "eras" list to filter. Same for runs and groups
             cond = (
                 ((not eras) or (item.era in eras))
-                and ((not groups_eos_dirs) or (groups_eos_dirs) or (item.eos_directory in groups_eos_dirs))
+                and ((not groups_eos_dirs) or (item.eos_directory in groups_eos_dirs))
                 and ((not runs) or (item.run in runs))
             )
             if cond:

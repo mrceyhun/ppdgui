@@ -9,15 +9,32 @@ export const usePlotsStore = defineStore("plots", {
     resp_groups: [],
     resp_eras: [],
     error: "",
+    messageText: "",
     hasUpdated: true,
+    limitMaxRunsPerEra: 5,
+    availableGroups: [],
     availableEras: [],
-    inputSelectedEras: [],
-    inputSelectedRuns: [],
+    availableRunEraTuples: [],
     inputSelectedGroups: [],
+    inputSelectedEras: [],
+    inputSelectedRunEraTuples: [],
   }),
   actions: {
-    async getHistorgrams(argEras, argGroups, argRuns) {
+    async getHistorgrams(argGroups, argEras, argRuns) {
       /* Prepare request object */
+      let msg = "";
+      if (argGroups.length == 0) {
+        msg += "Please select GROUP. ";
+      } else if (argEras.length == 0) {
+        msg += "Please select ERA. ";
+      } else if (argEras.length == 0) {
+        msg += "No RUN is selected. ";
+      }
+
+      if (msg !== "") {
+        this.messageText = msg;
+        return;
+      }
       const request = { eras: argEras, groups: argGroups, runs: argRuns };
       console.log("Request obj:" + JSON.stringify(request));
       try {
@@ -33,11 +50,9 @@ export const usePlotsStore = defineStore("plots", {
         this.resp_groups = await data.groups;
         this.resp_eras = await data.eras;
         this.hasUpdated = true;
-
         // TODO: use only on debug
         // console.log("Response: " + JSON.stringify(this.groups_data));
       } catch (e) {
-        alert("No histograms found with given request");
         if (e.response) {
           console.log("Error", e.response.data.detail);
           this.error = e.response.data.detail;
@@ -47,13 +62,22 @@ export const usePlotsStore = defineStore("plots", {
         } else {
           console.log("Error", e.message);
         }
+        // INFORM
+        this.messageText = e.message;
+        return;
       }
+      this.messageText = "";
     },
-    async getEras() {
+    async getAvailableGroups() {
       try {
-        const r = await axios.get("/v1/get-eras");
-        this.availableEras = await r.data;
-        console.log("Response: " + JSON.stringify(this.availableEras));
+        const r = await axios.get("/v1/get-groups");
+        this.availableGroups = await r.data;
+
+        /* DEFAULT: Make all GROUPS selected by default */
+        this.inputSelectedGroups = await r.data;
+        console.log(
+          "Response available groups: " + JSON.stringify(this.availableGroups)
+        );
       } catch (e) {
         if (e.response) {
           console.log("Error", JSON.stringify(e.response));
@@ -61,13 +85,89 @@ export const usePlotsStore = defineStore("plots", {
         } else {
           console.log("Error", e.message);
         }
+        // INFORM
+        this.messageText = e.message;
+        return;
       }
+      this.messageText = "";
+    },
+    async getAvailableEras() {
+      /* Filtered by selected GROUPS */
+      try {
+        const r = await axios.get("/v1/get-eras", {
+          params: {
+            groups: this.inputSelectedGroups,
+          },
+          paramsSerializer: {
+            indexes: null, // to make query parameters list like ?groups=AA&groups=BB&groups=CCC
+          },
+        });
+
+        this.availableEras = await r.data;
+        console.log(
+          "Response available eras: " + JSON.stringify(this.availableEras)
+        );
+      } catch (e) {
+        if (e.response) {
+          console.log("Error", JSON.stringify(e.response));
+          console.log(e.message);
+        } else {
+          console.log("Error", e.message);
+        }
+        this.messageText = e.message;
+        return;
+      }
+      this.messageText = "";
+    },
+    async getAvailableRunEraTuples() {
+      /* Filtered by selected GROUPS and ERAS */
+      if (this.inputSelectedEras.length <= 0) {
+        this.availableRunEraTuples = [];
+        this.messageText = "Please select ERA.";
+        return;
+      }
+
+      try {
+        const r = await axios.get("/v1/get-runs", {
+          params: {
+            limit: this.limitMaxRunsPerEra,
+            groups: this.inputSelectedGroups,
+            eras: this.inputSelectedEras,
+          },
+          paramsSerializer: {
+            indexes: null, // to make query parameters list like ?eras=AA&eras=BB
+          },
+        });
+
+        this.availableRunEraTuples = await r.data;
+
+        /* DEFAULT: Make all RUN:ERA tuples selected by default */
+        this.inputSelectedRunEraTuples = await r.data;
+        console.log(
+          "Response available eras: " +
+            JSON.stringify(this.availableRunEraTuples)
+        );
+      } catch (e) {
+        if (e.response) {
+          console.log("Error", JSON.stringify(e.response));
+          console.log(e.message);
+        } else {
+          console.log("Error", e.message);
+        }
+        // INFORM
+        this.messageText = e.message;
+        return;
+      }
+      this.messageText = "";
     },
     updateHistograms() {
       this.getHistorgrams(
-        this.inputSelectedEras,
         this.inputSelectedGroups,
-        this.inputSelectedRuns
+        this.inputSelectedEras,
+        this.inputSelectedRunEraTuples.map((item) => {
+          // Only Run numbers, drop Era names fro run:era tuples
+          return item[0];
+        })
       );
     },
   },

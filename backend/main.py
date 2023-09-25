@@ -45,5 +45,6 @@ if __name__ == "__main__":
         host=CONFIG.host,
         port=CONFIG.port,
         log_level=CONFIG.loglevel,
-        reload=True if CONFIG.environment == "dev" else False,
+        # reload=True if CONFIG.environment == "dev" else False,
+        reload=False,
     )

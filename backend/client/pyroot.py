@@ -251,7 +251,11 @@ def get_group_histograms(group_conf: ConfigPlotsGroup, run_era_map: Dict[int, st
     return ResponseGroup(group_name=group_conf.group_name, plots=plots)
 
 
-def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras: List[str] = None) -> ResponseMain:
+def get_histograms(
+    groups: List[str] = None,
+    eras: List[str] = None,
+    runs: List[int] | None = None,
+) -> ResponseMain:
     """Main function to get all histograms with provided filters
 
     Args:
@@ -259,21 +263,20 @@ def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras
         groups: Requested groups data, None means all groups
         eras: Requested ERAs data, None means all ERAs
     """
-    logging.debug(f"Params: eras: {eras}, runs:{runs}, groups: {groups}")
-
+    logging.debug(f"Params: eras: {eras},  groups: {groups},runs:{runs}")
     conf = get_config()
     dqm_store_client = get_dqm_store(config=conf)
 
     # get groups' eos directories from their names in given "groups" argument
     groups_eos_directories = None
     if groups:
-        groups_eos_directories = [d for gname, d in conf.get_plots_group_eos_dir_map().items() if gname in groups]
+        groups_eos_directories = [d for gname, d in conf.get_group_name_eos_directory_map().items() if gname in groups]
 
     # Get dict of {group: {run: era}} and find runs/eras
     if eras or runs:
         # If eras or runs given. If both of them are given, both are applied in the filters
         # ... which means their "AND" condition will be applied.
-        groups_runs_of_eras_dict = dqm_store_client.get_groups_runs_of_eras(
+        groups_runs_of_eras_dict = dqm_store_client.get_groups_and_runs_of_eras(
             groups_eos_dirs=groups_eos_directories, eras=eras, runs=runs, run_limit=conf.plots.max_era_run_size
         )
     else:
@@ -281,7 +284,7 @@ def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras
         # TODO: find recent run from DQM folks instead of intuitive recent run finding!
         recent_run = dqm_store_client.get_max_run()
         logging.debug(f"recent_run: {recent_run}")
-        groups_runs_of_eras_dict = dqm_store_client.get_groups_runs_of_eras(
+        groups_runs_of_eras_dict = dqm_store_client.get_groups_and_runs_of_eras(
             groups_eos_dirs=groups, runs=[recent_run], run_limit=conf.plots.max_era_run_size
         )
 
@@ -290,7 +293,7 @@ def get_histograms(runs: List[int] | None = None, groups: List[str] = None, eras
     list_of_groups_results = []
     # Iterate items of "ConfigDetectorGroup"
     for group_conf in conf.plots.groups:
-        if groups and (group_conf.group_name in groups):
+        if groups and (group_conf.group_name not in groups):
             continue  # skip the group
         group_result = get_group_histograms(
             group_conf=group_conf, run_era_map=groups_runs_of_eras_dict[group_conf.eos_directory]

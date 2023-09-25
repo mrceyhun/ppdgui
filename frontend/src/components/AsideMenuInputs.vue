@@ -1,5 +1,7 @@
 <script setup>
 import AsideMenuOptionEra from "@/components/AsideMenuOptionEra.vue";
+import AsideMenuOptionGroup from "@/components/AsideMenuOptionGroup.vue";
+import AsideMenuOptionRun from "@/components/AsideMenuOptionRun.vue";
 import { usePlotsStore } from "@/stores/plots.js";
 import { storeToRefs } from "pinia";
 
@@ -17,7 +19,10 @@ const props = defineProps({
 const emit = defineEmits(["menu-click"]);
 
 const plotsStore = usePlotsStore();
+const { messageText } = storeToRefs(plotsStore)
+const { availableGroups } = storeToRefs(plotsStore)
 const { availableEras } = storeToRefs(plotsStore)
+const { availableRunEraTuples } = storeToRefs(plotsStore)
 
 </script>
 
@@ -35,8 +40,14 @@ input[type=number] {
 </style>
 <template>
   <div class="px-2">
-
+    <div class="border border-rose-500 h-6 text-xs text-white subpixel-antialiased hover:text-sm hover:h-12">
+      Msg: {{ messageText }}
+    </div>
+    <AsideMenuOptionGroup :items="availableGroups" />
+    <div class="py-1"></div>
     <AsideMenuOptionEra :items="availableEras" />
+    <div class="py-1"></div>
+    <AsideMenuOptionRun :items="availableRunEraTuples" />
 
   </div>
 </template>
