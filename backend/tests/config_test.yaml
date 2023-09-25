@@ -1,7 +1,7 @@
 host: '0.0.0.0'
 port: 8081
-base_url: '/ppdgui/api/v1'
-api_v1_prefix: '/ppdgui/api/v1'
+base_url: '/ppd-dashboard/api/v1'
+api_v1_prefix: '/ppd-dashboard/api/v1'
 environment: 'dev'
 loglevel: 'debug'
 allowed_cors_origins:

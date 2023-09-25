@@ -1,4 +1,4 @@
-# Builds and publish PPDGUI backend and frontend docker images
+# Builds and publish ppd-dashboard backend and frontend docker images
 name: ci
 on:
   push:
@@ -13,9 +13,9 @@ jobs:
       matrix:
         include:
           - dockerfile: ./docker/Dockerfile-backend
-            image: mrceyhun/ppdgui-back
+            image: mrceyhun/ppd-dashboard-back
           - dockerfile: ./docker/Dockerfile-frontend
-            image: mrceyhun/ppdgui-front
+            image: mrceyhun/ppd-dashboard-front
     permissions:
       contents: read
       packages: write
@@ -36,7 +36,7 @@ jobs:
         with:
           images: ${{ matrix.image }}
 
-      - name: Build and push Docker images of PPDGUI
+      - name: Build and push Docker images of ppd-dashboard
         uses: docker/build-push-action@v4
         with:
           context: .

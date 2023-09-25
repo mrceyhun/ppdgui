@@ -38,6 +38,6 @@ EXPOSE 80
 #CMD [ "frontend/run.sh" ]
 # Ref https://www.middlewareinventory.com/blog/docker-vuejs/
 
-# docker build -t front -f frontend/Dockerfile frontend/
+# docker build -t front -f docker/Dockerfile-frontend frontend/
 # docker run -it --rm -p 8080:80  front
 

@@ -23,7 +23,7 @@ fi
 
 keytab=$1
 
-# Change _MY_NODE_NAME_ with Kubernetes node name: check kubernetes/ppdgui.yaml for env var $MY_NODE_NAME
+# Change _MY_NODE_NAME_ with Kubernetes node name: check kubernetes/ppd-dashboard.yaml for env var $MY_NODE_NAME
 sed "s/_MY_NODE_NAME_/$MY_NODE_NAME/" backend/config/server.k8s.yaml >"$FAST_API_CONF"/server.yaml
 
 # Start CRON for kerberos cron job

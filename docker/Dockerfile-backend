@@ -34,6 +34,6 @@ EXPOSE 8081
 #CMD [ "backend/run.sh" ]
 
 # python backend/main.py >>/proc/1/fd/1 2>&1 &
-# docker build -t mrceyhun/ppdgui-back:0.0.0 -f backend/Dockerfile .
-# docker run -it --rm -p 8081:8081 mrceyhun/ppdgui-back:0.0.0 /bin/bash
-# docker push mrceyhun/ppdgui-back:0.0.0
+# docker build -t mrceyhun/ppd-dashboard-back:0.0.0 -f docker/Dockerfile-backend .
+# docker run -it --rm -p 8081:8081 mrceyhun/ppd-dashboard-back:0.0.0 /bin/bash
+# docker push mrceyhun/ppd-dashboard-back:0.0.0

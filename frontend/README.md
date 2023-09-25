@@ -1,4 +1,4 @@
-# PPDGUI
+# ppd-dashboard
 In Progress
 
 ## Project Setup

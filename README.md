@@ -1,4 +1,4 @@
-# ppdgui
+# ppd-dashboard
 
 CMS PPD Physics Run Monitoring
 
@@ -28,10 +28,10 @@ Each folder includes its README.md file to understand details such as how to run
 
 - **backend**:  FastAPI, PyROOT, tests, its Dockerfile
 - **frontend**:  Vue.js, Vite(just for vue deployment and build), tailwind CSS, JSROOT, its Dockerfile
-- **kubernetes**:  ppdgui.yaml Kubernetes manifest file for both Frontend and Backend deployment
+- **kubernetes**:  ppd-dashboard.yaml Kubernetes manifest file for both Frontend and Backend deployment
 - **.github/workflows**: CI, GitHub actions that automatically builds docker images of both frontend and backend, and pushes to docker registry:
-    - https://hub.docker.com/repository/docker/mrceyhun/ppdgui-front
-    - https://hub.docker.com/repository/docker/mrceyhun/ppdgui-back
+    - https://hub.docker.com/repository/docker/mrceyhun/ppd-dashboard-front
+    - https://hub.docker.com/repository/docker/mrceyhun/ppd-dashboard-back
 
 
 ## Kubernetes
