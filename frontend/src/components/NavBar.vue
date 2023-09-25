@@ -1,9 +1,12 @@
 <script setup>
+import AnimationLoading from "@/components/AnimationLoading.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import NavBarItemPlain from "@/components/NavBarItemPlain.vue";
 import NavBarMenuList from "@/components/NavBarMenuList.vue";
 import { containerMaxW } from "@/config.js";
+import { usePlotsStore } from "@/stores/plots.js";
 import { mdiClose, mdiDotsVertical } from "@mdi/js";
+import { storeToRefs } from "pinia";
 import { ref } from "vue";
 
 defineProps({
@@ -12,14 +15,16 @@ defineProps({
     required: true,
   },
 });
-
 const emit = defineEmits(["menu-click"]);
+const plotsStore = usePlotsStore();
 
 const menuClick = (event, item) => {
   emit("menu-click", event, item);
 };
 
 const isMenuNavBarActive = ref(false);
+/* Controls Loading animation */
+const { hasTriggeredToUpdate } = storeToRefs(plotsStore)
 
 </script>
 
@@ -39,6 +44,9 @@ const isMenuNavBarActive = ref(false);
       <div
         class="max-h-screen-menu overflow-y-auto lg:overflow-visible absolute w-screen top-14 left-0 bg-gray-50 shadow-lg lg:w-auto lg:flex lg:static lg:shadow-none dark:bg-slate-800"
         :class="[isMenuNavBarActive ? 'block' : 'hidden']">
+
+        <!--  LOADING ANIMATION-->
+        <AnimationLoading :show="!hasTriggeredToUpdate" />
 
         <NavBarMenuList :menu="menu" @menu-click="menuClick" />
 

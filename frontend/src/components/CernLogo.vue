@@ -1,3 +1,3 @@
 <template>
-  <span>logo todo</span>
+  <span>Made with love</span>
 </template>
