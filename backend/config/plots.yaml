@@ -8,7 +8,7 @@ draw_options:
   THStack: "hist"
 
 # Max run size that an ERA can have for each group
-max_era_run_size: 3
+max_era_run_size: 5
 
 # Please provide all the histograms here
 groups:

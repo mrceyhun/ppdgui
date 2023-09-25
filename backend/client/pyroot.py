@@ -117,23 +117,26 @@ def util_overlay_runs_data_of_one_hist_to_single_thstack(
         - Color will be different for all runs which means all eras too.
     """
     # Used to set Line Style, their index defines their styles
-    eras = list(set(run_era_map.values()))
+    unique_eras = list(set(run_era_map.values()))
 
     # Create THStack
     ths = THStack()
     # Create legend, ref https://gist.github.com/skaplanhex/55982ed5ddcc966dfc2d
-    leg = TLegend(0.75, 0.7, 1.0, 0.9)
+    leg = TLegend(0.7, 0.7, 0.9, 0.9)  # x0, y0, x1, y1
     leg.SetBorderSize(1)
     leg.SetFillColor(0)
-    leg.SetFillStyle(0)
     leg.SetTextFont(42)
-    leg.SetTextSize(0.35)
+    # leg.SetFillStyle(0)
+    # leg.SetTextSize(0.35)
 
     c = TCanvas()
-    i = 2  # will control both line style and line color, 1 is black so start from 2
+    line_style_and_width_num = 1  # will control both line style and line width(boldness) depending on ERA count
+    line_color_num = 2  # will control line color of RUNS if there is only 1 ERA. 1 is black, so starts from 2
     title = ""
     for hist in runs_data_of_one_hist:
         # Get ROOT object from its JSON
+        if not hist.data:
+            continue
         hist_root_obj = TBufferJSON.ConvertFromJSON(hist.data)
 
         # Get meta
@@ -141,22 +144,29 @@ def util_overlay_runs_data_of_one_hist_to_single_thstack(
         title = str(hist_root_obj.GetTitle()).strip()
 
         # Differentiate to look better in Stack. Check refs: https://root.cern.ch/doc/master/classTAttLine.html
-        if len(eras) <= 1:
-            # If era count is 1, set different line style for each run
-            hist_root_obj.SetLineStyle(i)
+        if len(unique_eras) <= 1:
+            # If ERA count is 1, set different line style, line width and line color for each RUN
+            hist_root_obj.SetLineStyle(line_style_and_width_num)
+            hist_root_obj.SetLineWidth(line_style_and_width_num)
+            hist_root_obj.SetLineColor(line_color_num)
         else:
-            # If era count is greater than 1, set different line style for era. ROOT style numbers start from 1
-            era_index_of_run = eras.index(run_era_map[run]) + 1
-            hist_root_obj.SetLineStyle(era_index_of_run)
+            # Set different LineStyle for each RUN of ERA. ERA RUNS will have same colors but different shapes.
+            hist_root_obj.SetLineStyle(line_style_and_width_num)
+            # If ERA count is greater than 1, set same color for same era. ROOT style numbers start from 1 and colors start from 1.
+            # Find the ERA of run and find its index in unique_eras list and assign LineColor according to its index in ERAs list.
+            era_index_of_run = unique_eras.index(run_era_map[run]) + 1
+            hist_root_obj.SetLineColor(era_index_of_run + 1)  # Start colors from 2, because 1 is black
+            # Set the LineWidth(Boldness) depends on ERA name
+            hist_root_obj.SetLineWidth(era_index_of_run)
 
-        hist_root_obj.SetLineColor(i)
         leg.AddEntry(hist_root_obj, run_era_map[run] + "-" + str(run), "l")
         ths.Add(hist_root_obj)
-        i += 1
+
+        line_style_and_width_num += 1
+        line_color_num += 1
 
     ths.SetName(runs_data_of_one_hist[0].conf_name)  # Set THStack histogram name same as histograms
     ths.SetTitle(title)  # Set THStack histogram title same as histograms
-
     ths.Draw("nostack,hist")
     leg.Draw()
     c.Draw()  # Required to get all objects in "c" JSON

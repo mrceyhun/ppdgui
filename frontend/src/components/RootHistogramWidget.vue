@@ -45,7 +45,7 @@ async function drawHistJson(domId, jsonData, histType) {
 
 <template>
   <!-- Height(h-48	height: 12rem; /* 192px */) Width( depends on how many columns in the row: grid-cols-N) -->
-  <div v-bind:id="id" class="object-center h-48 w-full px-20 flex mb-1 rounded">
+  <div v-bind:id="id" class="object-center h-48 w-full flex mb-1 rounded">
     {{ drawHistJson(id, data, type) }}
   </div>
 </template>
