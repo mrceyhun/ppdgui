@@ -11,8 +11,8 @@ allowed_cors_origins:
 # Required to find DQM EOS metadata: runs, datasets, histogram root files
 dqm_meta_store:
   base_dqm_eos_dir: '/eos/cms/store/group/comm_dqm/DQMGUI_data'
-  find_tmp_results_file: 'dqm_root_files.txt'
-  meta_store_json_file: 'dqm_meta.json'
+  find_tmp_results_file: 'TMP_DMQ_ROOT_FILES.txt'
+  meta_store_json_file: 'DQM_META.json'
   last_n_run_years: 2
   file_suffix_pat: '*DQMIO.root'
   cache_retention_secs: 600

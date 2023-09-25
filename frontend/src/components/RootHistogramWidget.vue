@@ -24,7 +24,7 @@ defineProps({
 
 async function drawHistJson(domId, jsonData, histType) {
   const obj = await jsrootParse(jsonData);
-  // console.log('Read object of type', histJson, domId);
+  // console.log('Read object of type', jsonData, domId);
   switch (histType) {
     case 'TH1F':
       return await draw(domId, obj, "hist");

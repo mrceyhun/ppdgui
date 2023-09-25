@@ -7,14 +7,12 @@ Description : FastAPI main.py
 import logging
 from typing import Union, List
 
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, HTTPException, Query
 
 from backend.client import pyroot, utils
 from backend.config import get_config
-from .models import Request
+from .models import RequestHists
 
-
-DEFAULT_RUN_LIMIT_PER_ERA = get_config().plots.max_era_run_size
 
 # ----------------------------------------------------------------------------
 
@@ -24,11 +22,13 @@ logging.basicConfig(level=get_config().loglevel.upper())
 
 
 @router.post("/get-hists")
-async def get_run_hists(req: Union[Request, None]):
+async def get_run_hists(req: Union[RequestHists, None]):
     """Get ROOT histogram JSONs either overlaid or raw"""
     logging.info(f"Request:get-hists req: {str(req)}")
     try:
-        return pyroot.get_histograms(runs=req.runs, groups=req.groups, eras=req.eras)
+        return pyroot.get_histograms(
+            runs=req.runs, groups=req.groups, eras=req.eras, max_era_run_size=req.max_era_run_size
+        )
     except Exception as e:
         logging.error(f"Cannot process request. Incoming request => {str(req)}. Error: {str(e)}")
         raise HTTPException(status_code=404, detail=f"Error while processing request of [ run:{req.runs} ]")
@@ -61,9 +61,7 @@ async def get_eras(groups: List[str] = Query(None)):
 
 
 @router.get("/get-runs")
-async def get_runs(
-    limit: int = Query(DEFAULT_RUN_LIMIT_PER_ERA), groups: List[str] = Query(None), eras: List[str] = Query(None)
-):
+async def get_runs(limit: int = Query(None), groups: List[str] = Query(None), eras: List[str] = Query(None)):
     """Get all available eras filtered by groups and eras"""
     logging.info(f"Request:get-runs, param [eras] : {eras}")
     try:

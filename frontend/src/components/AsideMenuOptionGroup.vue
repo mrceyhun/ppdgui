@@ -3,22 +3,21 @@ import { usePlotsStore } from "@/stores/plots.js";
 import { storeToRefs } from "pinia";
 import { ref, watch } from 'vue';
 
-const props = defineProps({
+defineProps({
   items: {
     type: Array,
     default: []
   },
 });
-const show = ref(false);
+const show = ref(true);
 const plotsStore = usePlotsStore();
 
 /* Make store variable reflective */
 const { inputSelectedGroups } = storeToRefs(plotsStore)
 
 watch(inputSelectedGroups, (val) => {
-  console.log(`x is ${inputSelectedGroups.value}`)
+  console.log(`selected groups change:  is ${inputSelectedGroups.value}`)
   plotsStore.getAvailableEras()
-  plotsStore.updateHistograms()
 })
 
 function toggleDropdown() { show.value = !show.value }
@@ -40,11 +39,12 @@ function toggleDropdown() { show.value = !show.value }
     </div>
     <div class="overflow-y-scroll z-auto bg-white items-center rounded-sm dark:bg-gray-700" v-if="show">
       <ul class="p-1 text-xs text-gray-700 dark:text-gray-200" aria-labelledby="dropdownBgHoverButton">
-        <li v-for="(group_name, index) in items" :key="index">
+        <li v-for="(group_name, index) in items" :key="'group_checkbox_' + index">
           <div class="flex p-1 items-end rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-            <input type="checkbox" :id="index" :value="group_name" v-model="inputSelectedGroups"
+            <input type="checkbox" :id="'group_checkbox_' + index" :value="group_name" v-model="inputSelectedGroups"
               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 dark:bg-gray-600 dark:border-gray-500">
-            <label :for="index" class="w-full px-1  text-xs font-medium text-gray-900 rounded dark:text-gray-300">
+            <label :for="'group_checkbox_' + index"
+              class="w-full px-1  text-xs font-medium text-gray-900 rounded dark:text-gray-300">
               {{ group_name }}
             </label>
           </div>

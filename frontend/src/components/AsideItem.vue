@@ -11,7 +11,6 @@ const props = defineProps({
     type: Object,
     required: true,
   },
-  isDropdownList: Boolean,
 });
 
 const emit = defineEmits(["menu-click"]);
@@ -23,7 +22,7 @@ const asideMenuItemActiveStyle = computed(() =>
 );
 const isDropdownActive = ref(false);
 const componentClass = computed(() => [
-  props.isDropdownList ? "py-1 px-3 text-sm" : "py-3",
+  "py-3",
   hasColor.value
     ? getButtonColor(props.item.color, false, true)
     : `${styleStore.asideMenuItemStyle} dark:text-slate-300 dark:hover:text-white`,

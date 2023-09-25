@@ -1,6 +1,5 @@
 <script setup>
 import AsideMenuInputs from "@/components/AsideMenuInputs.vue";
-import AsideItem from "@/components/AsideItem.vue";
 import BaseIcon from "@/components/BaseIcon.vue";
 import { useStyleStore } from "@/stores/style.js";
 import { mdiClose, mdiHome, mdiTagSearchOutline } from "@mdi/js";
@@ -49,13 +48,8 @@ const asideLgCloseClick = (event) => {
         class="flex-1 overflow-y-auto overflow-x-hidden">
         <!-- ADDITIONAL ITEMS CAN BE ADDED HERE -->
         <!-- <ul>
-
-          <AsideItem
-            key="aside-item-github"
-            :item="{ 'href': 'https://github.com/mrceyhun/ppdgui', 'icon': mdiGithub, 'label': 'GitHub', 'target': '_blank' }"
-            @menu-click="menuClick" />
         </ul> -->
-        
+
         <AsideMenuInputs
           :icon="mdiTagSearchOutline"
           :item={} />

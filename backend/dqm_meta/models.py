@@ -6,9 +6,8 @@ Description : DQM Metadata Store Schema
 """
 
 import logging
-from typing import List, Union, Dict, Tuple
+from typing import List, Union, Dict
 from collections import defaultdict
-
 from pydantic import BaseModel, RootModel
 
 from backend.config import get_config
@@ -49,20 +48,22 @@ class DqmMetaStore(RootModel):
             return list(set([item.era for item in self.root]))
         else:  # Filter by group name
             available_eos_directories = conf.get_eos_directories_of_groups(group_names=group_names)
-            return list(set([item.era for item in self.root if item.eos_directory in available_eos_directories]))
+            return sorted(
+                list(set([item.era for item in self.root if item.eos_directory in available_eos_directories]))
+            )
 
-    def get_runs_era_tuples(self, limit: int, groups: List[str] = [], eras: List[str] = []) -> List[Tuple[int, str]]:
+    def get_runs_era_tuples(self, limit: int, groups: List[str] = [], eras: List[str] = []) -> Dict[int, str]:
         """Get all run:era couple with given filters. Limit is applied to RUN size of per ERA"""
         conf = get_config()
         available_eos_directories = conf.get_eos_directories_of_groups(group_names=groups)
-        group_run_era_dict = self.get_groups_and_runs_of_eras(
+        group_run_era_dicts = self.get_groups_and_runs_of_eras(
             eras=eras, groups_eos_dirs=available_eos_directories, runs=None, run_limit=limit
         ).values()
         run_era_dict = dict(
-            sum([list(run_era_dicts.items()) for run_era_dicts in group_run_era_dict], [])
+            sum([list(run_era_dicts.items()) for run_era_dicts in group_run_era_dicts], [])
         )  # flatten and get rid of groups
 
-        return list(run_era_dict.items())
+        return run_era_dict
 
     def get_datasets(self) -> List[str]:
         """Get all available dataset names"""
@@ -91,7 +92,7 @@ class DqmMetaStore(RootModel):
             if cond:
                 if item.eos_directory in result:
                     # If eos directory in result, it should be in group_era_run_counts too because they are initialized together(else cond.)
-                    # If one era's run count for a group is less than max limit, allow it. Else there is nothing to do and skop it.
+                    # If one era's run count for a group is less than max limit, allow it. Else there is nothing to do and skip it.
                     if group_era_run_counts[item.eos_directory][item.era] < run_limit:
                         result[item.eos_directory][item.run] = item.era
                         # Increment the group's era run count by one
@@ -99,6 +100,7 @@ class DqmMetaStore(RootModel):
                     else:
                         continue
                 else:
+                    # Initialize dict(run:era) of eos_directory, it's apperaing first time since it is not in "result" dict
                     result[item.eos_directory] = {item.run: item.era}
                     # Set new group as deaultdict in the dict
                     group_era_run_counts[item.eos_directory] = defaultdict(int)

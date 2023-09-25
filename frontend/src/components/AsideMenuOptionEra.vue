@@ -3,22 +3,21 @@ import { usePlotsStore } from "@/stores/plots.js";
 import { storeToRefs } from "pinia";
 import { ref, watch } from 'vue';
 
-const props = defineProps({
+defineProps({
   items: {
     type: Array,
     default: []
   },
 });
-const show = ref(false);
+const show = ref(true);
 const plotsStore = usePlotsStore();
 
 /* Make store variable reflective */
 const { inputSelectedEras } = storeToRefs(plotsStore)
 
 watch(inputSelectedEras, (val) => {
-  console.log(`x is ${inputSelectedEras.value}`)
-  plotsStore.getAvailableRunEraTuples() // Default all selected, see the function
-  plotsStore.updateHistograms()
+  console.log(`selected eras change:  is ${inputSelectedEras.value}`)
+  plotsStore.getAvailableRunEraDict() // Default all selected, see the function
 })
 
 function toggleDropdown() { show.value = !show.value }
@@ -40,11 +39,12 @@ function toggleDropdown() { show.value = !show.value }
     </div>
     <div class="z-auto bg-white items-center rounded-sm dark:bg-gray-700" v-if="show">
       <ul class="overflow-y-scroll p-1 text-xs text-gray-700 dark:text-gray-200" aria-labelledby="dropdownBgHoverButton">
-        <li v-for="(era, index) in items" :key="index">
+        <li v-for="(era, index) in items" :key="'era_checkbox_' + index">
           <div class="flex p-1 items-end rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-            <input type="checkbox" :id="index" :value="era" v-model="inputSelectedEras"
+            <input type="checkbox" :id="'era_checkbox_' + index" :value="era" v-model="inputSelectedEras"
               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 dark:bg-gray-600 dark:border-gray-500">
-            <label :for="index" class="w-full px-1 text-xs font-medium text-gray-900 rounded dark:text-gray-300">
+            <label :for="'era_checkbox_' + index"
+              class="w-full px-1 text-xs font-medium text-gray-900 rounded dark:text-gray-300">
               {{ era }}
             </label>
           </div>

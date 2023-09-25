@@ -3,24 +3,35 @@ import { defineStore } from "pinia";
 
 export const usePlotsStore = defineStore("plots", {
   state: () => ({
-    // /* Holds all histograms of detector groups */
+    /* Holds all histograms of detector groups */
     resp_groups_data: [],
-    resp_runs: [],
-    resp_groups: [],
-    resp_eras: [],
+    /* Holds main error message for debugging */
     error: "",
+    /* Holds the human readable error message for users. Bunded to Aside menu top "Msg:" text. */
     messageText: "",
+    /* Controls if reactive data is updated and draws histograms accordingly. Nested objects cannot be reactive as we want. */
     hasUpdated: true,
-    limitMaxRunsPerEra: 5,
+    /* Controls of loading animation, different than hasUpdated */
+    hasTriggeredToUpdate: true,
+    /* Controls how many RUNs should be included per ERA. Returned RUNs are always the most recent RUNs. */
+    limitMaxEraRunSizePerGroup: 5,
+    /* Holds available detector Groups coming from backend */
     availableGroups: [],
+    /* Holds available ERAs coming from backend */
     availableEras: [],
-    availableRunEraTuples: [],
+    /* Holds available RUN:ERA couples coming from backend */
+    availableRunEraDict: [],
+    /* Holds selected Groups from drop-down menu, default is ALL available Groups coming from backend. Each action(+/-) updates list of ERAs. */
     inputSelectedGroups: [],
+    /* Holds selected ERAs from drop-down menu, default is none of them are selected, but can be changed. Each action(+/-) updates list of RUNs. */
     inputSelectedEras: [],
-    inputSelectedRunEraTuples: [],
+    /* Holds selected RUNs from drop-down menu, default is ALL for the selected ERAs. If no ERA is selected, user cannot see any value. Each action(+/-) updates all histograms. 
+    Default value is keys of availableRunEraDict.
+    */
+    inputSelectedRuns: [],
   }),
   actions: {
-    async getHistorgrams(argGroups, argEras, argRuns) {
+    async getHistorgrams(argGroups, argEras, argRuns, argEraRunSizeLimit) {
       /* Prepare request object */
       let msg = "";
       if (argGroups.length == 0) {
@@ -35,20 +46,26 @@ export const usePlotsStore = defineStore("plots", {
         this.messageText = msg;
         return;
       }
-      const request = { eras: argEras, groups: argGroups, runs: argRuns };
+      /* Request */
+      const request = {
+        eras: argEras,
+        groups: argGroups,
+        runs: argRuns,
+        max_era_run_size: argEraRunSizeLimit,
+      };
+
       console.log("Request obj:" + JSON.stringify(request));
       try {
+        this.hasTriggeredToUpdate = false;
         const r = await axios.post("/v1/get-hists", request);
         const data = await r.data;
+        this.hasUpdated = false;
 
         /* Nested obj reactivity is not working, so we use v-if="hasUpdated" */
-        this.hasUpdated = false;
 
         /* r.data: backend/api_v1/models.py : ResponseMain */
         this.resp_groups_data = await data.groups_data;
-        this.resp_runs = await data.runs;
-        this.resp_groups = await data.groups;
-        this.resp_eras = await data.eras;
+        this.hasTriggeredToUpdate = true;
         this.hasUpdated = true;
         // TODO: use only on debug
         // console.log("Response: " + JSON.stringify(this.groups_data));
@@ -119,10 +136,10 @@ export const usePlotsStore = defineStore("plots", {
       }
       this.messageText = "";
     },
-    async getAvailableRunEraTuples() {
+    async getAvailableRunEraDict() {
       /* Filtered by selected GROUPS and ERAS */
       if (this.inputSelectedEras.length <= 0) {
-        this.availableRunEraTuples = [];
+        this.availableRunEraDict = [];
         this.messageText = "Please select ERA.";
         return;
       }
@@ -130,7 +147,7 @@ export const usePlotsStore = defineStore("plots", {
       try {
         const r = await axios.get("/v1/get-runs", {
           params: {
-            limit: this.limitMaxRunsPerEra,
+            limit: this.limitMaxEraRunSizePerGroup,
             groups: this.inputSelectedGroups,
             eras: this.inputSelectedEras,
           },
@@ -139,14 +156,20 @@ export const usePlotsStore = defineStore("plots", {
           },
         });
 
-        this.availableRunEraTuples = await r.data;
+        this.availableRunEraDict = await r.data;
 
-        /* DEFAULT: Make all RUN:ERA tuples selected by default */
-        this.inputSelectedRunEraTuples = await r.data;
+        /* DEFAULT: Make all RUNs selected by default */
+        this.inputSelectedRuns = Object.keys(this.availableRunEraDict);
+
+        /* UPDATE HISTOGRAMS*/
+        if (this.inputSelectedRuns.length > 0) {
+          this.updateHistograms();
+        }
+
         console.log(
-          "Response available eras: " +
-            JSON.stringify(this.availableRunEraTuples)
+          "Available run-era dict: " + JSON.stringify(this.availableRunEraDict)
         );
+        console.log("Selected runs: " + JSON.stringify(this.inputSelectedRuns));
       } catch (e) {
         if (e.response) {
           console.log("Error", JSON.stringify(e.response));
@@ -160,14 +183,16 @@ export const usePlotsStore = defineStore("plots", {
       }
       this.messageText = "";
     },
-    updateHistograms() {
-      this.getHistorgrams(
+    async updateMaxEraRunSize(val) {
+      this.limitMaxEraRunSizePerGroup = val;
+      await this.getAvailableRunEraDict(); // Update runs with new limit
+    },
+    async updateHistograms() {
+      await this.getHistorgrams(
         this.inputSelectedGroups,
         this.inputSelectedEras,
-        this.inputSelectedRunEraTuples.map((item) => {
-          // Only Run numbers, drop Era names fro run:era tuples
-          return item[0];
-        })
+        this.inputSelectedRuns,
+        this.limitMaxEraRunSizePerGroup
       );
     },
   },

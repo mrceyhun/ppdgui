@@ -180,8 +180,8 @@ frontend/.vscode
 backend/.vscode
 backend/tests/DQMGUI_data
 backend/tests/tmp
-dqm_meta.json
-dqm_root_files.txt
+DQM_META.json
+TMP_DMQ_ROOT_FILES.txt
 */*.code-workspace
 !.vscode/extensions.json
 *.suo

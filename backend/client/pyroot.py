@@ -17,14 +17,19 @@ from backend.dqm_meta.client import get_dqm_store
 from backend.dqm_meta.models import DqmMeta
 
 # Allowed histogram classes
-stack_allowed_classes = ["TH1F"]
+stackable_draw_opts = ["hist"]
 DRAW_OPTIONS = get_config().plots.draw_options
 logging.basicConfig(level=get_config().loglevel.upper())
 
-
-# TODO: limit era numbers (get min era run count, or average, etc.)
+# If limit is not defined, default calue will come from conf
+MAX_ERA_RUN_SIZE_PER_GRP = get_config().plots.max_era_run_size
 
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
+
+
+# ----------------------------------------------------------------------------
+#  READ HIST JSON FROM ROOT FILE
+# ----------------------------------------------------------------------------
 
 
 @functools.lru_cache(maxsize=1000, typed=False)  # Caches responses, params are hashabel so it works
@@ -72,8 +77,9 @@ def util_read_group_plots_of_one_run_from_root_file(
                     )
                     name = str(assumed_hist.GetName())
 
-                    # keep in mind that hash can be negative too which includes dash in str
-                    _id = "id" + str(hash(name))
+                    # Do not use hist.GetName() as ID because there can be same named plots, give full path name(plot_conf.name)
+                    # ... Also keep in mind that hash can be negative too which includes dash in str
+                    _id = "id" + str(hash(plot_conf.name))
 
                     data = ""
                     try:
@@ -99,6 +105,11 @@ def util_read_group_plots_of_one_run_from_root_file(
             return ResponsePlotsDict(group_plots_dicts)
     except Exception as e:
         logging.warning(f"Cannot read root => file: {dqm_meta.root_file}, obj path: {obj_path}. error: {str(e)}")
+
+
+# ----------------------------------------------------------------------------
+#  OVERLAY/STACK HISTOGRAMS IF POSSIBLE, USE JSONS COMING FROM ROOT FILES
+# ----------------------------------------------------------------------------
 
 
 def util_overlay_runs_data_of_one_hist_to_single_thstack(
@@ -134,9 +145,11 @@ def util_overlay_runs_data_of_one_hist_to_single_thstack(
     line_color_num = 2  # will control line color of RUNS if there is only 1 ERA. 1 is black, so starts from 2
     title = ""
     for hist in runs_data_of_one_hist:
-        # Get ROOT object from its JSON
+        # TODO: I did't have time to handle None ResponsePlot: If JSON data is not defined or histogram is not stackable, skip
+        # if (not hist.data) or (hist.draw_option not in stackable_draw_opts):
         if not hist.data:
             continue
+        # Get ROOT object from its JSON
         hist_root_obj = TBufferJSON.ConvertFromJSON(hist.data)
 
         # Get meta
@@ -182,7 +195,7 @@ def util_overlay_runs_data_of_one_hist_to_single_thstack(
         id=runs_data_of_one_hist[0].id,
         data=data,
         dqm_url=runs_data_of_one_hist[0].dqm_url,
-        draw_opt=DRAW_OPTIONS["THStack"],
+        draw_option=DRAW_OPTIONS["THStack"],
         hist_name=runs_data_of_one_hist[0].hist_name,
         conf_name=runs_data_of_one_hist[0].conf_name,
         run=0,  # it is overlaid with runs
@@ -255,6 +268,7 @@ def get_histograms(
     groups: List[str] = None,
     eras: List[str] = None,
     runs: List[int] | None = None,
+    max_era_run_size: int = MAX_ERA_RUN_SIZE_PER_GRP,
 ) -> ResponseMain:
     """Main function to get all histograms with provided filters
 
@@ -262,6 +276,7 @@ def get_histograms(
         runs: Requested runs data
         groups: Requested groups data, None means all groups
         eras: Requested ERAs data, None means all ERAs
+        max_era_run_size: Max RUN size in each ERA. If limit is not defined, default calue will come from conf
     """
     logging.debug(f"Params: eras: {eras},  groups: {groups},runs:{runs}")
     conf = get_config()
@@ -277,7 +292,7 @@ def get_histograms(
         # If eras or runs given. If both of them are given, both are applied in the filters
         # ... which means their "AND" condition will be applied.
         groups_runs_of_eras_dict = dqm_store_client.get_groups_and_runs_of_eras(
-            groups_eos_dirs=groups_eos_directories, eras=eras, runs=runs, run_limit=conf.plots.max_era_run_size
+            groups_eos_dirs=groups_eos_directories, eras=eras, runs=runs, run_limit=max_era_run_size
         )
     else:
         # No runs or ERAs given, so return recent run's results
@@ -285,7 +300,7 @@ def get_histograms(
         recent_run = dqm_store_client.get_max_run()
         logging.debug(f"recent_run: {recent_run}")
         groups_runs_of_eras_dict = dqm_store_client.get_groups_and_runs_of_eras(
-            groups_eos_dirs=groups, runs=[recent_run], run_limit=conf.plots.max_era_run_size
+            groups_eos_dirs=groups, runs=[recent_run], run_limit=max_era_run_size
         )
 
     logging.debug(f"groups_runs_of_eras_dict: {groups_runs_of_eras_dict}")

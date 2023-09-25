@@ -10,13 +10,14 @@ from typing import Dict, List
 from pydantic import BaseModel, RootModel
 
 
-class Request(BaseModel):
+class RequestHists(BaseModel):
     """Post request schema to get ROOT object JSON for overlay which use multiple run numbers"""
 
-    eras: list[str] | None = None  # List of eras to filter, None is use all eras
     groups: list[str] | None = None  # List of filtered eras, None is no filter and use all
-    datasets: list[str] | None = None  # List of filtered datasets, None is no filter and use all
+    eras: list[str] | None = None  # List of eras to filter, None is use all eras
+    # TODO: datasets: list[str] | None = None  # List of filtered datasets, None is no filter and use all
     runs: list[int] | None = None  # List of runs for overlay, None means the most recent run without overlay
+    max_era_run_size: int | None = None  # Max RUN size in each ERA. Default calue will come from conf
 
 
 class ResponsePlot(BaseModel):
@@ -25,7 +26,7 @@ class ResponsePlot(BaseModel):
     id: str  # hash of the histogram name with 'id' prefix
     data: str | None = None  # Histogram JSON created using TBufferJSON
     dqm_url: str | None = None  # DQMGUI url
-    draw_opt: str | None = None  # Histogram JSROOT draw option
+    draw_option: str | None = None  # Histogram JSROOT draw option
     hist_name: str | None = None  # Histogram name
     conf_name: str | None = None  # Histogram name in the plots.yaml config file (more descriptive)
     run: int | None = None  # Run number which helps to find ERA too
