@@ -16,7 +16,7 @@ const plotsStore = usePlotsStore();
 const { inputSelectedEras } = storeToRefs(plotsStore)
 
 watch(inputSelectedEras, (val) => {
-  console.log(`selected eras change:  is ${inputSelectedEras.value}`)
+  // console.log(`[DEBUG] selected eras change:  is ${inputSelectedEras.value}`)
   plotsStore.getAvailableRunEraDict() // Default all selected, see the function
 })
 

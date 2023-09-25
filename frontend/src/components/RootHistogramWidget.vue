@@ -24,7 +24,7 @@ defineProps({
 
 async function drawHistJson(domId, jsonData, histType) {
   const obj = await jsrootParse(jsonData);
-  // console.log('Read object of type', jsonData, domId);
+  // console.log('[DEBUG] Read object of type', jsonData, domId);
   switch (histType) {
     case 'TH1F':
       return await draw(domId, obj, "hist");
@@ -37,7 +37,7 @@ async function drawHistJson(domId, jsonData, histType) {
     case 'THStack':
       return await draw(domId, obj, "hist");
     default:
-      console.log(`Cannot draw ROOT class type of ${histType}. Drawing default "hist".`);
+      console.log(`[INFO] Cannot draw ROOT class type of ${histType}. Drawing default "hist".`);
       return await draw(domId, obj, "hist");
   }
 }

@@ -16,7 +16,7 @@ const plotsStore = usePlotsStore();
 const { inputSelectedGroups } = storeToRefs(plotsStore)
 
 watch(inputSelectedGroups, (val) => {
-  console.log(`selected groups change:  is ${inputSelectedGroups.value}`)
+  // console.log(`[DEBUG] selected groups change:  is ${inputSelectedGroups.value}`)
   plotsStore.getAvailableEras()
 })
 

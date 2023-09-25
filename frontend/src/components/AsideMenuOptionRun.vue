@@ -16,7 +16,7 @@ const plotsStore = usePlotsStore();
 const { inputSelectedRuns } = storeToRefs(plotsStore)
 
 watch(inputSelectedRuns, (val) => {
-  console.log(`selected runs change: ${inputSelectedRuns.value}`)
+  // console.log(`[DEBUG] selected runs change: ${inputSelectedRuns.value}`)
   plotsStore.updateHistograms()
 })
 

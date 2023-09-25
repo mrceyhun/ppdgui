@@ -54,7 +54,7 @@ export const usePlotsStore = defineStore("plots", {
         max_era_run_size: argEraRunSizeLimit,
       };
 
-      console.log("Request obj:" + JSON.stringify(request));
+      // console.log("[DEBUG] Request obj:" + JSON.stringify(request));
       try {
         this.hasTriggeredToUpdate = false;
         const r = await axios.post("/v1/get-hists", request);
@@ -68,16 +68,16 @@ export const usePlotsStore = defineStore("plots", {
         this.hasTriggeredToUpdate = true;
         this.hasUpdated = true;
         // TODO: use only on debug
-        // console.log("Response: " + JSON.stringify(this.groups_data));
+        // console.log("[DEBUG] Response: " + JSON.stringify(this.groups_data));
       } catch (e) {
         if (e.response) {
-          console.log("Error", e.response.data.detail);
+          // console.log("[INFO] Error", e.response.data.detail);
           this.error = e.response.data.detail;
-          console.log(e.message);
+          console.log("[INFO] ", e.message);
         } else if (e.request) {
-          console.log(e.request);
+          console.log("INFO", e.request);
         } else {
-          console.log("Error", e.message);
+          console.log("[INFO] Error", e.message);
         }
         // INFORM
         this.messageText = e.message;
@@ -92,15 +92,13 @@ export const usePlotsStore = defineStore("plots", {
 
         /* DEFAULT: Make all GROUPS selected by default */
         this.inputSelectedGroups = await r.data;
-        console.log(
-          "Response available groups: " + JSON.stringify(this.availableGroups)
-        );
+        // console.log("[DEBUG] Response available groups: " + JSON.stringify(this.availableGroups));
       } catch (e) {
         if (e.response) {
-          console.log("Error", JSON.stringify(e.response));
-          console.log(e.message);
+          // console.log("[DEBUG] Error", JSON.stringify(e.response));
+          console.log("[INFO] ", e.message);
         } else {
-          console.log("Error", e.message);
+          console.log("[INFO] Error", e.message);
         }
         // INFORM
         this.messageText = e.message;
@@ -121,15 +119,13 @@ export const usePlotsStore = defineStore("plots", {
         });
 
         this.availableEras = await r.data;
-        console.log(
-          "Response available eras: " + JSON.stringify(this.availableEras)
-        );
+        // console.log("[DEBUG] Response available eras: " + JSON.stringify(this.availableEras));
       } catch (e) {
         if (e.response) {
-          console.log("Error", JSON.stringify(e.response));
-          console.log(e.message);
+          // console.log("[DEBUG] Error", JSON.stringify(e.response));
+          console.log("[INFO] ", e.message);
         } else {
-          console.log("Error", e.message);
+          console.log("[INFO] Error", e.message);
         }
         this.messageText = e.message;
         return;
@@ -166,16 +162,14 @@ export const usePlotsStore = defineStore("plots", {
           this.updateHistograms();
         }
 
-        console.log(
-          "Available run-era dict: " + JSON.stringify(this.availableRunEraDict)
-        );
-        console.log("Selected runs: " + JSON.stringify(this.inputSelectedRuns));
+        // console.log("[DEBUG] Available run-era dict: " + JSON.stringify(this.availableRunEraDict));
+        // console.log("[DEBUG] Selected runs: " + JSON.stringify(this.inputSelectedRuns));
       } catch (e) {
         if (e.response) {
-          console.log("Error", JSON.stringify(e.response));
-          console.log(e.message);
+          // console.log("[DEBUG] Error", JSON.stringify(e.response));
+          console.log("[INFO] ", e.message);
         } else {
-          console.log("Error", e.message);
+          console.log("[INFO] Error", e.message);
         }
         // INFORM
         this.messageText = e.message;
