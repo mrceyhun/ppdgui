@@ -13,9 +13,6 @@ from backend.client import pyroot, utils
 from backend.config import get_config
 from .models import RequestHists
 
-
-# ----------------------------------------------------------------------------
-
 # TODO: change prefix
 router = APIRouter()
 logging.basicConfig(level=get_config().loglevel.upper())

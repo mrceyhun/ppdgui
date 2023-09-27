@@ -25,7 +25,7 @@ const { hasUpdated, hasTriggeredToUpdate, resp_groups_data } = storeToRefs(plots
   <section class="p-0 px-0 " :class="[containerMaxW, (!hasTriggeredToUpdate) ? 'opacity-25' : '']">
 
     <RootHistogramGroupRow
-      v-if="hasTriggeredToUpdate || hasUpdated"
+      v-if="hasTriggeredToUpdate"
       v-for="(detectorGroup, index) in resp_groups_data"
       :key="index"
       :plots="detectorGroup.plots"

@@ -10,11 +10,11 @@ from typing import List, Dict, Union
 
 from ROOT import TFile, TBufferJSON, TCanvas, THStack, TLegend
 
-from . import utils
 from backend.api_v1.models import ResponsePlot, ResponsePlotsDict, ResponseGroup, ResponseMain
 from backend.config import get_config, ConfigPlotsGroup
 from backend.dqm_meta.client import get_dqm_store
 from backend.dqm_meta.models import DqmMeta
+from . import utils
 
 # Allowed histogram classes
 stackable_draw_opts = ["hist"]
@@ -23,6 +23,7 @@ logging.basicConfig(level=get_config().loglevel.upper())
 
 # If limit is not defined, default calue will come from conf
 MAX_ERA_RUN_SIZE_PER_GRP = get_config().plots.max_era_run_size
+
 
 # Your Bible: https://root.cern.ch/doc/master/classTDirectoryFile.html
 

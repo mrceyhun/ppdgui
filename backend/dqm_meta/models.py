@@ -41,7 +41,7 @@ class DqmMetaStore(RootModel):
     def __getitem__(self, item):
         return self.root[item]
 
-    def get_eras_filtered(self, group_names: List[str] = []) -> List[str]:
+    def get_eras_filtered(self, group_names: List[str] = ()) -> List[str]:
         """Get all available era names available for the given group names"""
         conf = get_config()
         if not group_names:  # Return all
@@ -52,7 +52,7 @@ class DqmMetaStore(RootModel):
                 list(set([item.era for item in self.root if item.eos_directory in available_eos_directories]))
             )
 
-    def get_runs_era_tuples(self, limit: int, groups: List[str] = [], eras: List[str] = []) -> Dict[int, str]:
+    def get_runs_era_tuples(self, limit: int, groups: List[str] = (), eras: List[str] = ()) -> Dict[int, str]:
         """Get all run:era couple with given filters. Limit is applied to RUN size of per ERA"""
         conf = get_config()
         available_eos_directories = conf.get_eos_directories_of_groups(group_names=groups)
